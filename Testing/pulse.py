@@ -1,6 +1,6 @@
-import random 
+from random import randint
 
-def pulse():
+def makePulse():
 
 	x =randint(1,3)
 	plgood = randint(50,150)
@@ -8,10 +8,10 @@ def pulse():
 
 	if x is 1:
 		#send good data
-		return "" + plgood
+		return "PULSE: " + str(plgood)
 	elif x is 2:
 		#send bad data (off range)
-		return "" + plbad
+		return "PULSE: " + str(plbad)
 	else :
 		#rubish
-		return "garbage"
+		return "PULSE: garbage"
