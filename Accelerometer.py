@@ -4,7 +4,7 @@ from random import randint
 def stubAccelerometer():
 	
 	thistime = randint(0,50)
-	string = "Acceleration: "
+	string = "ACCEL: "
 	
 	if thistime>45:
 		return "garbage"
