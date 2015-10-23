@@ -5,7 +5,7 @@ def stubAccelerometer():
 	
 	thistime = randint(0,50)
 	string = "ACCEL: "
-	
+	data = {"xf: ", "yf: ", "zf: ", "xa: ", "ya: ", "za: "}
 	if thistime>45:
 		return "garbage"
 	elif thistime > 40:
@@ -18,8 +18,9 @@ def stubAccelerometer():
 		min = 0
 		max = 50
 	
-	for i in range(0, 5):
-		string += randint(min, max) + " "
-	
-	
+	for i in data:
+		if "f" in i:
+			string += i + randint(min, max) + " "
+		elif "a" in i:
+			string += i + randint(min, max*2 -10) + " "
 	return string
