@@ -5,7 +5,7 @@ def stubAccelerometer():
 	
 	thistime = randint(0,50)
 	string = "ACCEL: "
-	data = {"xf: ", "yf: ", "zf: ", "xa: ", "ya: ", "za: "}
+	data = ["xf: ", "yf: ", "zf: ", "xa: ", "ya: ", "za: "]
 	if thistime>45:
 		return "garbage"
 	elif thistime > 40:
