@@ -15,25 +15,22 @@ import java.net.InetAddress;
 
 
 public class MainActivity extends ActionBarActivity{
-
+    public static TextView textView;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final TextView textView = (TextView) findViewById(R.id.text_box);
+        textView = (TextView) findViewById(R.id.text_box);
 
         Button sendButton = (Button) findViewById(R.id.send_button);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                textView.setText("" + Math.random() * 10);
                 new Thread(new UDPSender()).start();
             }
         });
-
-
     }
 
     @Override
