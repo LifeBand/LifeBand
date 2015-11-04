@@ -20,10 +20,13 @@ while True:
  input1 = input("Send or receive: ")
  if input1 == "s":
   print("{}".format(json_data))
+  #encode json encoded string using 'utf-8'
   sock.sendto(json_data.encode('utf-8'), (OTHER_IP, UDP_PORT))   
  elif input1 == "r":
   data, addr = sock.recvfrom(1024)
+  #decode from 'utf-8' to json encoded string
   data = data.decode('utf-8')
+  #decode string to json object
   jsonObject = json.loads(data)
   print("{}".format(jsonObject))
   
