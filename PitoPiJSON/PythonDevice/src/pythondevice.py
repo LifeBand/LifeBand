@@ -10,13 +10,8 @@ __date__ = "$Nov 4, 2015 4:08:12 PM$"
 if __name__ == "__main__":
     MY_IP = "134.117.59.73"
     OTHER_IP = "134.117.59.74"
-    UDP_PORT = 5005 
-
-    #create object
-    data = {}
+    UDP_PORT = 5005
     
-    #serialize object to json formatted string
-    json_data = json.dumps(data)
 
     #UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
@@ -26,8 +21,12 @@ if __name__ == "__main__":
         input1 = input("Send or receive: ")
         if input1 == "s":
             input2 = input("What to send: ")
+            #create object
+            data = {}
             #add key value pair to object
             data['value'] = input2
+            #serialize object to json formatted string
+            json_data = json.dumps(data)
             print("{}".format(json_data))
             #encode json encoded string using 'utf-8'
             sock.sendto(json_data.encode('utf-8'), (OTHER_IP, UDP_PORT))   
