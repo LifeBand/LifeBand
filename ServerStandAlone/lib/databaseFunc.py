@@ -42,11 +42,20 @@ def createTable(conn,tableName,columns):
 	
 
 
-def addEmergContactInfo(conn,tableName,name,phone,email,twitter):
+def addEmergContactInfo(conn,tableName,data):
+
 	contactUUID = str(uuid.uuid1()) 
-	conn.cursor().execute('INSERT INTO '+str(tableName)+' (contactID,name,phone,email,twitter) VALUES (?,?,?,?,?)',(contactUUID,name,phone,email,twitter))
+	conn.cursor().execute('INSERT INTO '+str(tableName)+' (contactID,name,phone,email,twitter) VALUES (?,?,?,?,?)',(contactUUID,data['name'],data['phone'],data['email'],data['twitter']))
 	conn.commit()
 	return contactUUID
+
+def remEmergContactInfo(conn,tableName,data):
+	"""
+	Function: Removes the Emergency contact with the smae name passed in data
+	"""
+	conn.cursor().execute('DELETE FROM'+str(tableName)+' WHERE name = \'' + str(data['name'])+'\'')
+	conn.commit()
+
 
 def addAlarmData(conn,tableName,status):
 
@@ -119,8 +128,7 @@ def main():
 	createTable(conn,'deviceList',devListCols )
 	createTable(conn,'emergList', emergListCols )
 	
-	addEmergContactInfo(conn,'emergList','Dom',6138239379,'dom@lalaland.com','_domkickone')
-
+	
 	pulseID = addDevice(conn,'pulse','bpm')
 	accellID = addDevice(conn,'accell','N')
 	respID = addDevice(conn,'resp','mps')

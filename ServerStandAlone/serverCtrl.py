@@ -37,6 +37,9 @@ pulseID = 0
 respID = 0
 accellID = 0
 
+
+
+"""Dictionaries for established database structure"""
 emergListCols = [ 
 					['contactID','TEXT'] , 
 					['name', 'TEXT'] , 
@@ -54,7 +57,7 @@ devListCols = 	[
 				]
 
 
-alarmListCols = 	[	 
+alarmListCols = [	 
 					['timeStamp','TEXT'] , 
 					['status', 'TEXT'] 
 				]
@@ -81,8 +84,15 @@ def serverController(args):
 		if dataDecoded['command'] == 'getLatestData':
 			print ("Sending latest Data")
 
+		elif dataDecoded['command'] == 'getPastData':
+
+		elif dataDecoded['command'] == 'addEmergencyContact':
+			addEmergContactInfo(conn,'emergList',dataDecoded['data'])
+		elif dataDecoded['command'] == 'remEmergencyContact':
+			remEmergContactInfo(conn,'emergList',dataDecoded['data'])
 
 	elif dataDecoded['id'] == "wearable":
+		print ("Wearable data Received!")
 		if dataDecoded['command'] == 'addPulseData':
 			print ("Adding pulse data to database")
 			dbFunc.addSensorData(database,'pulse',pulseID,dataDecoded['data'])
@@ -105,6 +115,17 @@ def serverController(args):
 			dbFunc.addAlarmData(database,'alarmList','FALSE')
 
 def createSensorDatabase():
+	"""
+	Function:	
+	Create the Database tables for syste
+
+	Input arguments:
+	None
+
+	Output variables:
+	None
+	"""
+
 	global pulseID
 	global respID
 	global accellID
@@ -123,11 +144,34 @@ def createSensorDatabase():
 
 
 def maintainDatabaseSize():
+	"""
+	Function:	
+	Maintain the Database of sensor reading to within 90 days
+
+	Input arguments:
+	None
+
+	Output variables:
+	None
+	"""
+
 	conn = sqlite3.connect(DEF_DB_PATH)
 	conn.cursor().execute('DELETE FROM deviceList WHERE timeStamp<'+str(time.time()-DEF_DAYS_IN_SECONDS))
 	conn.commit()
 
 def emailHandler():
+	"""
+	Function:	
+	Creates a connection with the Google Email API and sends a message
+	Upon alert
+	
+	Input arguments:
+	None
+
+	Output variables:
+	None
+	"""
+
 	print("Email Sender started")
 	credentials = emailAPI.get_credentials()
 	http = credentials.authorize(httplib2.Http())
@@ -135,15 +179,6 @@ def emailHandler():
 
 	message = emailAPI.CreateMessage('LifeBandCenter@gmail.com', 'irusha.dilshan@gmail.com', 'Test123', 'Hey! How\'s it hanging?')
 	emailAPI.SendMessage(service, 'me', message)
-    #results = service.users().labels().list(userId='me').execute()
-    #labels = results.get('labels', [])
-
-    #if not labels:
-    #    print('No labels found.')
-    #else:
-    #  print('Labels:')
-    #  for label in labels:
-    #    print(label['name'])
 
 
 
@@ -177,26 +212,3 @@ if __name__ == "__main__":
 
 
 
-
-
-
-
-'''
-	dbFunc.addEmergContactInfo(database,'emergList','Dom',6138239379,'dom@lalaland.com','_domkickone')
-
-	pulseID = dbFunc.addDevice(database,'pulse','bpm')
-	accellID = dbFunc.addDevice(database,'accell','N')
-	respID = dbFunc.addDevice(database,'resp','mps')
-	
-	dbFunc.printTable(database,'deviceList')
-	dbFunc.printTable(database,'emergList')
-	#removeDevice(database,'accell')
-	#deleteTable(database,'deviceList')
-	dbFunc.addSensorData(database,'accell',accellID,{'fx':2,'fy':2,'fz':2,'ax':23.4,'ay':13.4,'az':3.4,})
-	dbFunc.addSensorData(database,'pulse',pulseID,{'pulse':83.4})
-	dbFunc.addSensorData(database,'resp',respID,{'resp':18.2})
-
-	dbFunc.printTable(database,'accellData')
-	dbFunc.printTable(database,'pulseData')
-	dbFunc.printTable(database,'respData')
-	'''
