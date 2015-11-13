@@ -27,8 +27,11 @@ accellDataCols= [
 					['ay', 'REAL'] ,
 					['az', 'REAL'] 
 				]
-
-
+				
+snapshotDataCols= [
+				['heartBeat', 'REAL']
+				['breatheRate', 'REAL']
+				]
 
 def createTable(conn,tableName,columns):
 
@@ -108,7 +111,11 @@ def addSensorData(conn,devName,devID,data):
 	elif devName == 'resp':
 		conn.cursor().execute('INSERT INTO '+str(devName)+'Data (DEVID,timeStamp,resp) VALUES (?,?,?)',(devID,int(time.time()),data['resp']))
 		conn.commit()
-
+	
+def addSnapshotData(conn, data, timeScale):
+	conn.cursor().execute('INSERT INTO '+str(timeScale)+'Data (heartBeat, breatheRate) Values (?,?)',(data['heartBeat'],data['breatheRate']))
+	conn.commit()
+	
 def printTable(conn,tableName):
 	print'\n-------------------------\nPrinting Table ',tableName
 	cursor = conn.execute('SELECT * from '+str(tableName))
