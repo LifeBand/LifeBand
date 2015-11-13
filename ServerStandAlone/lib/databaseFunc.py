@@ -48,11 +48,10 @@ def addEmergContactInfo(conn,tableName,name,phone,email,twitter):
 	conn.commit()
 	return contactUUID
 
-def addAlarmData(conn,tableName,data):
-	contactUUID = str(uuid.uuid1()) 
-	conn.cursor().execute('INSERT INTO '+str(tableName)+' (contactID,name,phone,email,twitter) VALUES (?,?,?,?,?)',(contactUUID,name,phone,email,twitter))
+def addAlarmData(conn,tableName,status):
+
+	conn.cursor().execute('INSERT INTO '+str(tableName)+' (timeStamp,status) VALUES (?,?)',(int(time.time()),status))
 	conn.commit()
-	return contactUUID
 
 
 def createSensorDataTable(conn,devName):
