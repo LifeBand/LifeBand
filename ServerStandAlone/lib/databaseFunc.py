@@ -3,6 +3,8 @@ import time
 import datetime
 import uuid
 
+DEF_HALF_HOUR_IN_SECONDS = 60 #3600
+DEF_1_DAY_IN_SECONDS = 86400
 devIDCount = 0
 
 pulseDataCols = [	 
@@ -28,10 +30,6 @@ accellDataCols= [
 					['az', 'REAL'] 
 				]
 				
-snapshotDataCols= [
-				['heartBeat', 'REAL']
-				['breatheRate', 'REAL']
-				]
 
 def createTable(conn,tableName,columns):
 
@@ -54,7 +52,7 @@ def addEmergContactInfo(conn,tableName,data):
 
 def remEmergContactInfo(conn,tableName,data):
 	"""
-	Function: Removes the Emergency contact with the smae name passed in data
+	Function: Removes the Emergency contact with the same name passed in data
 	"""
 	conn.cursor().execute('DELETE FROM'+str(tableName)+' WHERE name = \'' + str(data['name'])+'\'')
 	conn.commit()
@@ -112,8 +110,8 @@ def addSensorData(conn,devName,devID,data):
 		conn.cursor().execute('INSERT INTO '+str(devName)+'Data (DEVID,timeStamp,resp) VALUES (?,?,?)',(devID,int(time.time()),data['resp']))
 		conn.commit()
 	
-def addSnapshotData(conn, data, timeScale):
-	conn.cursor().execute('INSERT INTO '+str(timeScale)+'Data (heartBeat, breatheRate) Values (?,?)',(data['heartBeat'],data['breatheRate']))
+def addSnapshotData(conn,tableName, data):
+	conn.cursor().execute('INSERT INTO '+str(timeScale)+'Data (timeStamp,heartBeat, breatheRate) Values (?,?,?)',(time.time()-(time.time()%DEF_HALF_HOUR_IN_SECONDS),data['heartBeat'],data['breatheRate']))
 	conn.commit()
 	
 def printTable(conn,tableName):
