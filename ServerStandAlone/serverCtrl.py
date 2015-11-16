@@ -2,6 +2,7 @@
 from __future__ import print_function
 import os
 import sys
+import random
 
 sys.path.append(os.getcwd()+'/lib')
 
@@ -31,10 +32,11 @@ import googleEmailApiFunc as emailAPI
 import sched, time
 
 DEF_DB_PATH = 'lifeBandDB.db'
-DEF_IP = '127.0.0.1'
-DEF_PORT = 8080
+#DEF_IP = '0.0.0.0'
+DEF_IP = '172.17.148.20'
+DEF_PORT = 5005
 
-DEF_HALF_HOUR_IN_SECONDS = 10 18600
+DEF_HALF_HOUR_IN_SECONDS = 10 #1800
 DEF_1_DAY_IN_SECONDS = 86400
 DEF_2_DAYS_IN_SECONDS = 172800
 
@@ -85,7 +87,6 @@ def serverController(server,data,addr):
 	args[0] : data that is contained in UDP packets
 	args[1] : Address from the connection
 	"""
-
 	database = sqlite3.connect(DEF_DB_PATH)
 	#print "Transmitted data: "+ data
 	dataDecoded = json.loads(data)
@@ -94,10 +95,15 @@ def serverController(server,data,addr):
 	if dataDecoded['id'] == "phone":
 		print ("Phone data Received from "+str(addr))
 		if dataDecoded['command'] == 'getLatestData':
-			print ("Sending latest Data"
-			resp = {'id':'server','command':'putLatestData','data':{'pulse':str(random.randint(50,160)),'resp':str(random.randint(50,160)),'accell':str(random.randint(50,160))}}
+			print ("Sending latest Data")
 
-			server.sendto(json.dumps(data), addr)
+			pulseD = random.randint(50,160)
+			respD = random.randint(50,160)
+			accellD = random.randint(50,160)
+			accellD = random.randint(50,160)
+			resp = {'id':'server','command':'putLatestData','data':{'pulse':pulseD,'resp':respD,'accell':accellD}}
+			server.sendto(json.dumps(resp), addr)
+
 		elif dataDecoded['command'] == 'getPastData':
 			print ("Sending past Data")
 
@@ -177,7 +183,7 @@ def maintainDatabaseSize():
 
 	conn = sqlite3.connect(DEF_DB_PATH)
 
-	conn.cursor().execute('DELETE FROM deviceList WHERE timeStamp<'+str(time.time()-DEF_2_DAYS_IN_SECONDS))
+	conn.cursor().execute('DELETE FROM deviceList WHERE timeStamp < '+str(time.time()-DEF_2_DAYS_IN_SECONDS))
 	
 	conn.commit()
 
@@ -212,12 +218,20 @@ def calculateHourlyData(sched):
 		print ("\tCalculating average values")
 		conn = sqlite3.connect(DEF_DB_PATH)
 		#dbFunc.printTable(conn,'pulseData')
-
-		query = conn.cursor().execute('SELECT pulse FROM pulseData WHERE timeStamp > '+str(time.time()-(time.time()%DEF_HALF_HOUR_IN_SECONDS)))
+		data = list()
+		query = conn.cursor().execute('SELECT pulse FROM pulseData WHERE timeStamp > ? ', [(time.time()-(time.time()%DEF_HALF_HOUR_IN_SECONDS))] )
 		#query = conn.cursor().fetchall()
-		print (str(conn.cursor().fetchall()))
+		#print (str(conn.cursor().fetchall()))
+		for row in query:
+			data.append(str(row))
+			#print(row)
 
-		#pulsePerHour = (lambda x, y: x + y, query )/ len(query)
+		print(data)
+		#query =  [i[1] for i in query]
+		#print(type(query))
+		#print(query)
+		#print(type(query[0]))
+		pulsePerHour = (lambda x, y: x + y, data )/ len(data)
 
 		#query =conn.cursor().execute('SELECT resp FROM respData WHERE timeStamp<'+str(time.time())+' AND timeStamp > '+str(time.time()-(time.time()%DEF_HALF_HOUR_IN_SECONDS)))
 		#query = conn.fetchall()
@@ -249,8 +263,8 @@ def main():
 	server = UDPFunc.createUDPSocket(DEF_IP,DEF_PORT)
 
 	createSensorDatabase()
-	timerThread = Thread(target = timerSched, args = [])
-	timerThread.start()
+	#timerThread = Thread(target = timerSched, args = [])
+	#timerThread.start()
 	
 	#thread.start_new_thread( maintainDatabaseSize,(None,None)) 
 	try:
