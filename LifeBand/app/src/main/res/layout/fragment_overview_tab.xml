@@ -102,11 +102,6 @@
             </TableRow>
             </TableLayout>
 
-            <fragment android:name="com.lifeofpi.lifeband.HistoryPageFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                tools:layout="@layout/fragment_history" />
         </LinearLayout>
     </ScrollView>
 </android.support.v4.widget.SwipeRefreshLayout>
