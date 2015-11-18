@@ -32,7 +32,7 @@ accellDataCols= [
 				
 
 def createTable(conn,tableName,columns):
-
+	
 	query = 'CREATE TABLE IF NOT EXISTS '+str(tableName)+' ('
 	for i in range(0,len(columns)-1):
 		query +=str(columns[i][0])+' ' +str(columns[i][1])+', '
