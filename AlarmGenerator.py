@@ -40,6 +40,7 @@ if __name__ == '__main__':
         alarm_signal()
     last_hr = hr
     while true:
+        hr = next_heart_rate()
         if hr < hr_min_threshold || hr > hr_max_threshold || abs(hr - last_hr) > hr_change_threshold:
             alarm_signal()
         else:
