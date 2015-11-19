@@ -3,6 +3,8 @@ import spidev
 import time 
 import ctypes as C
 import threading 
+import socket
+import json
 
 def bitstring(n):
 	s=bin(n)[2:]
@@ -22,10 +24,17 @@ def read (adc_channel=0 , spi_channel=0):
 	return int(reply,2)/ 2**10
 
 def arraythread (x,num,val):
+	data = {}
+	data ['id'] ='wearable'	
 	if val == 0 :
+		data ['command']= 'possibleAlarm'
+		data ['data']={'pulse':'val'}
 		ave = 0
+		#json_data = json.dumps(data)
+		#sock.sentto(json_data.encode('utf-8'),(SERVER_IP,UDP_PORT))
 		print "ALAAAAAAAAAAAAARM"
 	else:	
+		data ['command']= 'addPulseData'
 		z = num%10
 		x[z]= val
 		total=0
@@ -38,7 +47,9 @@ def arraythread (x,num,val):
 				total = total + x[i]
 
 			ave = total / z
-
+			data['data']= {'pulse':'ave'}
+			#json_data = json.dumps(data)
+			#sock.sentto(json_data.encode('utf-8'),(SERVER_IP,UDP_PORT))
 		print ("the average number of beats is %d", ave)
 	
 class pulse:
@@ -85,6 +96,14 @@ if __name__ == '__main__':
 	count = 0
 	num = 0
 	
+	MY_IP = "10.0.0.23"
+	SERVER_IP= ""
+	UDP_PORT = 5005
+
+
+	sock= socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+	sock.bind((MY_IP,UDP_PORT))
+		
 	while True:
 		time.sleep(0.1)
 		p = read()
@@ -112,9 +131,10 @@ if __name__ == '__main__':
             
 			node.nodeinc()
 
-		elif ((time.time()-node.getTime) >= 3):
-			freq = 0
+		elif num != 0 :
+			if ((time.time()-node.getTime()) >= 3):
+				freq = 0
 			
-			start(x,num,freq)
+				start(x,num,freq)
 
-			time.sleep(1)
+				time.sleep(1)
