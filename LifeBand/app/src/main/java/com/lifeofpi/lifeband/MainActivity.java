@@ -11,6 +11,15 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
 
+
+
+    public static final int PORT = 5005;
+    public static final String SERVER_IP = "172.17.148.20";
+    public static final int RECEIVE_PERIOD = 3000;
+    public static final String TAG = "LifeBand";
+
+    private TabLayout tabLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,9 +31,8 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this));
 
         // Give the TabLayout the ViewPager
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
-
     }
 
     @Override
@@ -45,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }

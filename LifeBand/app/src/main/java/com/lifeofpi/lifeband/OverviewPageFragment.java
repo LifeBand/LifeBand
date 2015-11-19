@@ -7,11 +7,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.util.logging.Handler;
@@ -56,14 +58,52 @@ public class OverviewPageFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                new GetDataTask().execute();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject getLatestDataJSON = new UDPHelper().getLatestDataJSON;
+                        UDPHelper.sendUDP(getLatestDataJSON, MainActivity.SERVER_IP, MainActivity.PORT);
+                        JSONObject data = UDPHelper.receiveUDP(MainActivity.PORT, MainActivity.RECEIVE_PERIOD);
+                        if(data != null) {
+                            try {
+                                final double pulse = data.getDouble("pulse");
+                                final double resp = data.getDouble("resp");
+                                final double acc = data.getDouble("accell");
+                                updateOverview(pulse, resp, acc);
+                            } catch (Exception e) {
+                                Log.e(MainActivity.TAG, "data extraction failed", e);
+                            }
+                        }
+                        endRefresh();
+                    }
+                }).start();
             }
         });
 
         return view;
     }
 
-    private class GetDataTask extends AsyncTask<Void, Void, String[]> {
+    public void updateOverview(final double pulse, final double resp, final double acc){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                currentHeartbeatTextView.setText(Math.round(pulse) + "");
+                currentRespirationTextView.setText(Math.round(resp) + "");
+                currentAccelerationTextView.setText(Math.round(acc) + "");
+            }
+        });
+    }
+
+    public void endRefresh(){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+    /*private class GetDataTask extends AsyncTask<Void, Void, String[]> {
 
         @Override
         protected String[] doInBackground(Void... params) {
@@ -71,9 +111,7 @@ public class OverviewPageFragment extends Fragment {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    currentHeartbeatTextView.setText(Math.round(Math.random() * 40 + 40) + "");
-                    currentRespirationTextView.setText(Math.round(Math.random() * 50 + 30) + "");
-                    currentAccelerationTextView.setText(Math.round(Math.random() * 10) + "");
+                    updateOverview((int) Math.round(Math.random() * 40 + 40), (int) Math.round(Math.random() * 50 + 30), (int) Math.round(Math.random() * 10));
                 }
             });
 
@@ -85,5 +123,5 @@ public class OverviewPageFragment extends Fragment {
             super.onPostExecute(strings);
             swipeRefreshLayout.setRefreshing(false);
         }
-    }
+    }*/
 }
