@@ -3,6 +3,9 @@ import time
 import datetime
 import uuid
 
+DEF_HALF_HOUR_IN_SECONDS = 60 #3600
+DEF_1_DAY_IN_SECONDS = 86400
+
 devIDCount = 0
 
 pulseDataCols = [	 
@@ -27,11 +30,10 @@ accellDataCols= [
 					['ay', 'REAL'] ,
 					['az', 'REAL'] 
 				]
-
-
+				
 
 def createTable(conn,tableName,columns):
-
+	
 	query = 'CREATE TABLE IF NOT EXISTS '+str(tableName)+' ('
 	for i in range(0,len(columns)-1):
 		query +=str(columns[i][0])+' ' +str(columns[i][1])+', '
@@ -42,17 +44,26 @@ def createTable(conn,tableName,columns):
 	
 
 
-def addEmergContactInfo(conn,tableName,name,phone,email,twitter):
+def addEmergContactInfo(conn,tableName,data):
+
 	contactUUID = str(uuid.uuid1()) 
-	conn.cursor().execute('INSERT INTO '+str(tableName)+' (contactID,name,phone,email,twitter) VALUES (?,?,?,?,?)',(contactUUID,name,phone,email,twitter))
+	conn.cursor().execute('INSERT INTO '+str(tableName)+' (contactID,name,phone,email,twitter) VALUES (?,?,?,?,?)',(contactUUID,data['name'],data['phone'],data['email'],data['twitter']))
 	conn.commit()
 	return contactUUID
 
-def addAlarmData(conn,tableName,data):
-	contactUUID = str(uuid.uuid1()) 
-	conn.cursor().execute('INSERT INTO '+str(tableName)+' (contactID,name,phone,email,twitter) VALUES (?,?,?,?,?)',(contactUUID,name,phone,email,twitter))
+def remEmergContactInfo(conn,tableName,data):
+	"""
+	Function: Removes the Emergency contact with the same name passed in data
+	"""
+	conn.cursor().execute('DELETE FROM'+str(tableName)+' WHERE name = \'' + str(data['name'])+'\'')
 	conn.commit()
-	return contactUUID
+
+
+def addAlarmData(conn,tableName,status):
+
+	conn.cursor().execute('INSERT INTO '+str(tableName)+' (timeStamp,status) VALUES (?,?)',(int(time.time()),status))
+	conn.commit()
+
 
 
 def createSensorDataTable(conn,devName):
@@ -101,6 +112,11 @@ def addSensorData(conn,devName,devID,data):
 		conn.cursor().execute('INSERT INTO '+str(devName)+'Data (DEVID,timeStamp,resp) VALUES (?,?,?)',(devID,int(time.time()),data['resp']))
 		conn.commit()
 
+	
+def addSnapshotData(conn,tableName, data):
+	conn.cursor().execute('INSERT INTO '+str(timeScale)+'Data (timeStamp,heartBeat, breatheRate) Values (?,?,?)',(time.time()-(time.time()%DEF_HALF_HOUR_IN_SECONDS),data['heartBeat'],data['breatheRate']))
+	conn.commit()
+	
 def printTable(conn,tableName):
 	print'\n-------------------------\nPrinting Table ',tableName
 	cursor = conn.execute('SELECT * from '+str(tableName))
@@ -120,8 +136,6 @@ def main():
 	createTable(conn,'deviceList',devListCols )
 	createTable(conn,'emergList', emergListCols )
 	
-	addEmergContactInfo(conn,'emergList','Dom',6138239379,'dom@lalaland.com','_domkickone')
-
 	pulseID = addDevice(conn,'pulse','bpm')
 	accellID = addDevice(conn,'accell','N')
 	respID = addDevice(conn,'resp','mps')
@@ -140,4 +154,5 @@ def main():
 
 if __name__ == "__main__":
 	main()
+
 '''
