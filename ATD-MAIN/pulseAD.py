@@ -6,6 +6,7 @@ import threading
 import socket
 import json
 
+#the function bitstring and read gets the pulse from the pulse sensor through the analog to digital converter
 def bitstring(n):
 	s=bin(n)[2:]
 	return '0'*(8-len(s))+s
@@ -23,6 +24,8 @@ def read (adc_channel=0 , spi_channel=0):
 	conn.close()
 	return int(reply,2)/ 2**10
 
+#gets a ratio of the pulse per min (freq) and it saves in an array and sends the average ever new data entered
+# if there was no pulse it sends the signals envoking the allarm to start 
 def arraythread (x,num,val):
 	data = {}
 	data ['id'] ='wearable'	
@@ -52,6 +55,8 @@ def arraythread (x,num,val):
 			#sock.sentto(json_data.encode('utf-8'),(SERVER_IP,UDP_PORT))
 		print ("the average number of beats is %d", ave)
 	
+# the class pulse is the struction where the time stamp of each pulse is saved 
+# it has methods to set and change its pointers and values
 class pulse:
 	def __init__ (self,time):
 		self.time = time
@@ -84,7 +89,7 @@ class pulse:
 	def delet(self):
 		del self
 
-
+# it starts the thread every time needed
 def start (x,num,freq):
 	thread = threading.Thread(target = arraythread , args = (x,num,freq) )
 	threads.append (thread)
@@ -95,7 +100,7 @@ if __name__ == '__main__':
 	x = [0]*10
 	count = 0
 	num = 0
-	
+	# setting the ips and ports for connection between the server 
 	MY_IP = "10.0.0.23"
 	SERVER_IP= ""
 	UDP_PORT = 5005
@@ -105,10 +110,13 @@ if __name__ == '__main__':
 	sock.bind((MY_IP,UDP_PORT))
 		
 	while True:
-		time.sleep(0.1)
-		p = read()
 		
+		time.sleep(0.1)
+		# getting the reading and there time stamp
+		p = read()
 		timee = time.time()
+		#if the voltage recived by read is more than 0.65 that means that there is beat
+		# if there is a beat it inputs it in the queue making a new node in the queue
 		if (p > 0.65):		
 			if (count == 0):
 				node = pulse(timee)
@@ -117,7 +125,8 @@ if __name__ == '__main__':
 				node = pulse(timee)
 
 			count = count + 1	
-
+			
+			# sending data to the thread every second
 			if ((node.getTime() - headnode.getTime() ) >= 1):	
 				freq=( 1 / (node.getTime() - headnode.getTime() ))* 60
 			
@@ -131,6 +140,7 @@ if __name__ == '__main__':
             
 			node.nodeinc()
 
+		# if there is no pulse for more than 3 seconds that means there might be a danger which sends to the thread a signal of danger 
 		elif num != 0 :
 			if ((time.time()-node.getTime()) >= 3):
 				freq = 0
