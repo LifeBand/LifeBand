@@ -1,6 +1,7 @@
 import databaseFunc as dbFunc
 import sqlite3
 import random
+import time
 class serverModel():
 
 	"""Dictionaries for established database structure"""
@@ -54,6 +55,7 @@ class serverModel():
 						['ay', 'REAL'] ,
 						['az', 'REAL'] 
 					]
+
 	def __init__(self,dataBasePath):
 		self.devIDCount = 0
 		self.DEF_DB_PATH = dataBasePath 
@@ -119,9 +121,9 @@ class serverModel():
 		dbFunc.createTable(conn,'alarmList', self.emergListCols )
 		dbFunc.createTable(conn,'snapshotData', self.snapshotDataCols )
 
-		self.pulseID = dbFunc.addDevice(conn,'pulse','bpm')
-		self.accellID = dbFunc.addDevice(conn,'accell','N')
-		self.respID = dbFunc.addDevice(conn,'resp','mps')
+		self.pulseID = dbFunc.addDevice(conn,'pulse','bpm',self.pulseDataCols)
+		self.accellID = dbFunc.addDevice(conn,'accell','N',self.accellDataCols)
+		self.respID = dbFunc.addDevice(conn,'resp','mps',self.respDataCols)
 
 		conn.close()
 
@@ -148,13 +150,38 @@ class serverModel():
 
 	def getLatestDataFromDB(self):
 		conn = sqlite3.connect(self.DEF_DB_PATH)
+		queryPulse = conn.cursor().execute('SELECT pulse FROM pulseData ORDER BY timeStamp DESC LIMIT 1' ).fetchone()
+			
+		'''
 		pulseD = random.randint(50,160)
 		respD = random.randint(50,160)
 		accellD = random.randint(50,160)
 		accellD = random.randint(50,160)
 		conn.close()
 		response = {'id':'server','command':'putLatestData','data':{'pulse':pulseD,'resp':respD,'accell':accellD}}
+		'''
+		
+		response = {'id':'server','command':'putLatestData','data':{'pulse':queryPulse[0],'resp':99,'accell':62}}
+		
 		return response
+
+	def getpulseDataSetFromDB(self,numPoints):
+		conn = sqlite3.connect(self.DEF_DB_PATH)
+		queryPulse = conn.cursor().execute('SELECT timeStamp,pulse FROM pulseData DESC LIMIT '+str(numPoints)).fetchall()
+			
+		'''
+		pulseD = random.randint(50,160)
+		respD = random.randint(50,160)
+		accellD = random.randint(50,160)
+		accellD = random.randint(50,160)
+		conn.close()
+		response = {'id':'server','command':'putLatestData','data':{'pulse':pulseD,'resp':respD,'accell':accellD}}
+		'''
+		
+		response = {'id':'server','command':'putLatestData','data':queryPulse}
+		
+		return response
+
 
 	def startDataCalculation(self):
 		s = sched.scheduler(time.time, time.sleep)

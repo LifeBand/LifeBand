@@ -8,28 +8,7 @@ DEF_1_DAY_IN_SECONDS = 86400
 
 devIDCount = 0
 
-pulseDataCols = [	 
-					['DEVID','TEXT'] , 
-					['timeStamp', 'REAL'] , 
-					['pulse', 'REAL'] 
-				]
 
-respDataCols = 	[	 
-					['DEVID','TEXT'] , 
-					['timeStamp', 'REAL'] , 
-					['resp', 'REAL'] 
-				]
-
-accellDataCols= [	 
-					['DEVID','TEXT'] , 
-					['timeStamp', 'REAL'] , 
-					['fx', 'REAL'] ,
-					['fy', 'REAL'] ,
-					['fz', 'REAL'] ,
-					['ax', 'REAL'] ,
-					['ay', 'REAL'] ,
-					['az', 'REAL'] 
-				]
 				
 
 def createTable(conn,tableName,columns):
@@ -66,29 +45,21 @@ def addAlarmData(conn,tableName,status):
 
 
 
-def createSensorDataTable(conn,devName):
-	if devName=='accell':
-		createTable(conn,devName+'Data',accellDataCols)
-
-	elif devName == 'pulse':
-		createTable(conn,devName+'Data',pulseDataCols)
-
-
-	elif devName == 'resp':
-		createTable(conn,devName+'Data',respDataCols)
+def createSensorDataTable(conn,devName,devCols):
+	createTable(conn,devName+'Data',devCols)
 
 def deleteTable(conn,tableName):
 	conn.cursor().execute('DROP TABLE IF EXISTS '+str(tableName))
 
 
 
-def addDevice(conn,devName,unit):
+def addDevice(conn,devName,unit,devCols):
 	global devIDCount
 	devUUID =str(uuid.uuid1()) 
 	conn.cursor().execute('INSERT INTO deviceList (DEVID, devName,unit) VALUES (?,?,?)',(devUUID,str(devName),unit))
 	devIDCount+=1
 	conn.commit()
-	createSensorDataTable(conn,str(devName))
+	createSensorDataTable(conn,str(devName),devCols)
 	return devUUID
 
 def removeDevice(conn,devName,devID):

@@ -7,7 +7,7 @@ import serverModl
 
 def main():
 	DatabasePath = 'lifeBandDB.db'
-	ListenIP ='172.17.158.44'# #'172.17.148.20'
+	ListenIP ='172.17.144.192' # #'172.17.148.20'
 	Port = 5005
 	#receivePort =5005
 	#sendPort = 6006
