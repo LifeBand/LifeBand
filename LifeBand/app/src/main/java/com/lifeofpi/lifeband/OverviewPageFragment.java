@@ -40,10 +40,10 @@ public class OverviewPageFragment extends PageFragment {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        JSONObject getLatestDataJSON = new UDPHelper().getLatestDataJSON;
+                        JSONObject latestDataJSON = new UDPHelper().getLatestDataJSON;
                         JSONObject jSONData = null;
-                        if (UDPHelper.sendUDP((MainActivity) getActivity(), getLatestDataJSON, MainActivity.SERVER_IP, MainActivity.PORT))
-                            jSONData = UDPHelper.receiveUDP((MainActivity) getActivity(), MainActivity.PORT, MainActivity.RECEIVE_PERIOD);
+                        if (UDPHelper.sendUDP((MainActivity) getActivity(), latestDataJSON, getIP(), getPort()))
+                            jSONData = UDPHelper.receiveUDP((MainActivity) getActivity(), getPort(), MainActivity.RECEIVE_PERIOD);
                         if (jSONData != null) {
                             try {
                                 JSONObject data = jSONData.getJSONObject("data");
@@ -62,6 +62,19 @@ public class OverviewPageFragment extends PageFragment {
         });
 
         return view;
+    }
+
+    private String getStringFromResources(int id){
+        return getActivity().getResources().getString(id);
+    }
+
+    private int getPort(){
+        Log.d("TAG", ((MainActivity) getActivity()).sharedPreferences.getString(getStringFromResources(R.string.port_key), getStringFromResources(R.string.port_default)));
+        return Integer.valueOf(((MainActivity) getActivity()).sharedPreferences.getString(getStringFromResources(R.string.port_key), getStringFromResources(R.string.port_default)));
+    }
+
+    private String getIP(){
+        return ((MainActivity)getActivity()).sharedPreferences.getString(getStringFromResources(R.string.ip_key), getStringFromResources(R.string.ip_default));
     }
 
     public void updateOverview(final double pulse, final double resp, final double acc) {
