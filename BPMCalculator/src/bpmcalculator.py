@@ -1,6 +1,8 @@
+from __future__ import division 
+import spidev 
 import time
-import threading
-import random
+import threading 
+
 
 __author__ = "dominikschmidtlein"
 __date__ = "$Nov 20, 2015 3:43:40 PM$"
@@ -39,7 +41,7 @@ def read (adc_channel=0 , spi_channel=0):
 	return int(reply,2)/ 2**10
 
 def send(BPM):
-    print("", BPM)
+    print BPM
 
 def sender_thread(beat_times, n):
     while(True):
@@ -49,6 +51,7 @@ def sender_thread(beat_times, n):
 def reader_thread(beat_times, n):
     while True:
         voltage = read()
+        print voltage
         if voltage > THRESHOLD:
             flag[READ_THREAD] = True
             turn = SEND_THREAD
@@ -74,7 +77,7 @@ def calculate_average_bpm(beat_times):
             old_beat_times.append(b_time)
     for b_time in old_beat_times:
         beat_times.remove(b_time)
-    print("Old: ", len(old_beat_times))
+#    print("Old: ", len(old_beat_times))
     length = len(beat_times)
     #CS end
     flag[SEND_THREAD] = False
