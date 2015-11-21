@@ -51,8 +51,8 @@ def sender_thread(beat_times, n):
 def reader_thread(beat_times, n):
     while True:
         voltage = read()
-        print voltage
         if voltage > THRESHOLD:
+            print voltage
             flag[READ_THREAD] = True
             turn = SEND_THREAD
             while flag[SEND_THREAD] and turn == SEND_THREAD:
@@ -66,7 +66,6 @@ def reader_thread(beat_times, n):
 def calculate_average_bpm(beat_times):
     old_beat_times = []
     ref_time = time.time()
-    oldest_time = ref_time
     
     flag[SEND_THREAD] = True
     turn = READ_THREAD
