@@ -81,7 +81,8 @@ def calculate_average_bpm(beat_times):
     length = len(beat_times)
     #CS end
     flag[SEND_THREAD] = False
-    
+    if length == 0:
+        return 0
     return length*SECONDS_PER_MIN/(beat_times[length - 1] - beat_times[0])
 
 def test_thread(b, n):
