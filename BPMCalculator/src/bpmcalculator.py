@@ -11,10 +11,10 @@ READ_THREAD = 0
 SEND_THREAD = 1
 
 SAMPLE_PERIOD_IN_SEC = 30
-SECONDS_PER_SEND = 3
-HUMAN_BPM_LIMIT = 240
+SECONDS_PER_SEND = 1
+HUMAN_BPM_LIMIT = 150
 SECONDS_PER_MIN = 60
-THRESHOLD = 0.9
+THRESHOLD = 0.65
 
 bt_index = 0
 min_seconds_per_beat = SECONDS_PER_MIN/HUMAN_BPM_LIMIT
@@ -66,6 +66,7 @@ def reader_thread(beat_times, n):
 def calculate_average_bpm(beat_times):
     old_beat_times = []
     ref_time = time.time()
+    oldest_time = ref_time
     
     flag[SEND_THREAD] = True
     turn = READ_THREAD
@@ -75,6 +76,7 @@ def calculate_average_bpm(beat_times):
     for b_time in beat_times:
         if(abs(ref_time - b_time) > SAMPLE_PERIOD_IN_SEC):
             old_beat_times.append(b_time)
+                
     for b_time in old_beat_times:
         beat_times.remove(b_time)
 #    print("Old: ", len(old_beat_times))
@@ -82,7 +84,7 @@ def calculate_average_bpm(beat_times):
     #CS end
     flag[SEND_THREAD] = False
     
-    return length*SECONDS_PER_MIN/SAMPLE_PERIOD_IN_SEC
+    return length*SECONDS_PER_MIN/(beat_times[length - 1] - beat_times[0])
 
 def test_thread(b, n):
     return -1
