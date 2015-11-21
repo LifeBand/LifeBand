@@ -78,7 +78,6 @@ def calculate_average_bpm(beat_times):
                 
     for b_time in old_beat_times:
         beat_times.remove(b_time)
-#    print("Old: ", len(old_beat_times))
     length = len(beat_times)
     #CS end
     flag[SEND_THREAD] = False
