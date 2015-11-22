@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:key="connection_category_key"
+        android:title="Connection Settings">
+        <EditTextPreference
+            android:defaultValue="@string/port_default"
+            android:inputType="number"
+            android:key="@string/port_key"
+            android:title="@string/port_title" />
+        <EditTextPreference
+            android:defaultValue="@string/ip_default"
+            android:key="@string/ip_key"
+            android:title="@string/ip_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="patient_category_key"
+        android:title="Patient Settings">
+        <EditTextPreference
+            android:defaultValue="@string/name_default"
+            android:key="@string/name_key"
+            android:title="@string/name_title" />
+        <EditTextPreference
+            android:defaultValue="@string/age_default"
+            android:inputType="number"
+            android:key="@string/age_key"
+            android:title="@string/age_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

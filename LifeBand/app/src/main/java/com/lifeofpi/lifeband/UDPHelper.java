@@ -1,6 +1,7 @@
 package com.lifeofpi.lifeband;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -14,6 +15,10 @@ import java.net.SocketTimeoutException;
  */
 public class UDPHelper {
 
+    public static final String SEND_FAILED = "Send Failed";
+    public static final String RECEIVE_FAILED = "Receive Failed";
+    public static final String UPDATE_UNAVAILABLE = "Update Unavailable";
+
     public final JSONObject getLatestDataJSON = new JSONObject();
 
     public UDPHelper(){
@@ -23,7 +28,7 @@ public class UDPHelper {
         }catch (Exception e){}
     }
 
-    public static void sendUDP(JSONObject data, String ip, int port) {
+    public static boolean sendUDP(MainActivity mainActivity, JSONObject data, String ip, int port) {
         try {
             InetAddress address = InetAddress.getByName(ip);
             byte[] sendData = data.toString().getBytes();
@@ -31,13 +36,15 @@ public class UDPHelper {
             DatagramPacket packet = new DatagramPacket(sendData, sendData.length, address, port);
             socket.send(packet);
             socket.close();
+            return true;
         }catch (Exception e) {
-            Log.e(MainActivity.TAG, "send failed", e);
-            System.exit(0);
+            Log.e(MainActivity.TAG, SEND_FAILED, e);
+            mainActivity.displayToast(SEND_FAILED, Toast.LENGTH_SHORT);
+            return false;
         }
     }
 
-    public static JSONObject receiveUDP(int port, int time)  {
+    public static JSONObject receiveUDP(MainActivity mainActivity, int port, int time)  {
         DatagramSocket socket = null;
         try {
             byte[] receiveData = new byte[1024];
@@ -51,10 +58,13 @@ public class UDPHelper {
             return jsonObject;
         }catch (Exception e){
             try{socket.close();}catch (Exception ee){}
+
+            String message = RECEIVE_FAILED;
             if(e instanceof SocketTimeoutException)
-                return null;
-            Log.e(MainActivity.TAG, "receive failed", e);
-            System.exit(0);
+                message = UPDATE_UNAVAILABLE;
+            else
+                Log.e(MainActivity.TAG, RECEIVE_FAILED, e);
+            mainActivity.displayToast(message, Toast.LENGTH_SHORT);
             return null;
         }
     }

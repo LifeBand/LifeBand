@@ -1,6 +1,22 @@
 <resources>
     <string name="app_name">LifeBand</string>
 
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="ip_default">172.17.144.192</string>
+    <string name="ip_key">KEY_PREF_IP</string>
+    <string name="ip_title">IP Address</string>
+
+    <string name="port_default">8008</string>
+    <string name="port_key">KEY_PREF_PORT</string>
+    <string name="port_title">Port</string>
+
+    <string name="name_default">NAME</string>
+    <string name="name_key">KEY_PREF_NAME</string>
+    <string name="name_title">Name</string>
+
+    <string name="age_default">100</string>
+    <string name="age_key">KEY_PREF_AGE</string>
+    <string name="age_title">Age</string>
 </resources>

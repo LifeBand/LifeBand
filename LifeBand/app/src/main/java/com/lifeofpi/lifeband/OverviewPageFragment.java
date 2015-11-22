@@ -1,11 +1,6 @@
 package com.lifeofpi.lifeband;
 
-
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,36 +9,20 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.json.JSONObject;
-import org.w3c.dom.Text;
-
-import java.util.logging.Handler;
 
 /**
  * Created by dominikschmidtlein on 11/4/2015.
  */
-public class OverviewPageFragment extends Fragment {
+public class OverviewPageFragment extends PageFragment {
     public static final String NAME = "Overview";
-    public static final String ARG_PAGE = "ARG_PAGE";
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private TextView currentHeartbeatTextView;
     private TextView currentRespirationTextView;
     private TextView currentAccelerationTextView;
 
-    private int mPage;
-
     public static OverviewPageFragment newInstance(int page) {
-        Bundle args = new Bundle();
-        args.putInt(ARG_PAGE, page);
-        OverviewPageFragment fragment = new OverviewPageFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mPage = getArguments().getInt(ARG_PAGE);
+        return (OverviewPageFragment) PageFragment.newInstance(page, new OverviewPageFragment());
     }
 
     @Override
@@ -61,11 +40,13 @@ public class OverviewPageFragment extends Fragment {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        JSONObject getLatestDataJSON = new UDPHelper().getLatestDataJSON;
-                        UDPHelper.sendUDP(getLatestDataJSON, MainActivity.SERVER_IP, MainActivity.PORT);
-                        JSONObject data = UDPHelper.receiveUDP(MainActivity.PORT, MainActivity.RECEIVE_PERIOD);
-                        if(data != null) {
+                        JSONObject latestDataJSON = new UDPHelper().getLatestDataJSON;
+                        JSONObject jSONData = null;
+                        if (UDPHelper.sendUDP((MainActivity) getActivity(), latestDataJSON, getIP(), getPort()))
+                            jSONData = UDPHelper.receiveUDP((MainActivity) getActivity(), getPort(), MainActivity.RECEIVE_PERIOD);
+                        if (jSONData != null) {
                             try {
+                                JSONObject data = jSONData.getJSONObject("data");
                                 final double pulse = data.getDouble("pulse");
                                 final double resp = data.getDouble("resp");
                                 final double acc = data.getDouble("accell");
@@ -83,7 +64,20 @@ public class OverviewPageFragment extends Fragment {
         return view;
     }
 
-    public void updateOverview(final double pulse, final double resp, final double acc){
+    private String getStringFromResources(int id){
+        return getActivity().getResources().getString(id);
+    }
+
+    private int getPort(){
+        Log.d("TAG", ((MainActivity) getActivity()).sharedPreferences.getString(getStringFromResources(R.string.port_key), getStringFromResources(R.string.port_default)));
+        return Integer.valueOf(((MainActivity) getActivity()).sharedPreferences.getString(getStringFromResources(R.string.port_key), getStringFromResources(R.string.port_default)));
+    }
+
+    private String getIP(){
+        return ((MainActivity)getActivity()).sharedPreferences.getString(getStringFromResources(R.string.ip_key), getStringFromResources(R.string.ip_default));
+    }
+
+    public void updateOverview(final double pulse, final double resp, final double acc) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -94,7 +88,7 @@ public class OverviewPageFragment extends Fragment {
         });
     }
 
-    public void endRefresh(){
+    public void endRefresh() {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -102,26 +96,4 @@ public class OverviewPageFragment extends Fragment {
             }
         });
     }
-
-    /*private class GetDataTask extends AsyncTask<Void, Void, String[]> {
-
-        @Override
-        protected String[] doInBackground(Void... params) {
-
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    updateOverview((int) Math.round(Math.random() * 40 + 40), (int) Math.round(Math.random() * 50 + 30), (int) Math.round(Math.random() * 10));
-                }
-            });
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String[] strings) {
-            super.onPostExecute(strings);
-            swipeRefreshLayout.setRefreshing(false);
-        }
-    }*/
 }
