@@ -97,33 +97,3 @@ def printTable(conn,tableName):
 	table = conn.cursor().execute('SELECT * FROM '+str(tableName))
 	for row in table:
 		print row
-
-'''
-def main():
-	global devIDCount
-	devIDCount = 0
-	conn = sqlite3.connect('ddd.db')
-	cursor = conn.cursor()
-	createTable(conn,'deviceList',devListCols )
-	createTable(conn,'emergList', emergListCols )
-	
-	pulseID = addDevice(conn,'pulse','bpm')
-	accellID = addDevice(conn,'accell','N')
-	respID = addDevice(conn,'resp','mps')
-	printTable(conn,'deviceList')
-	printTable(conn,'emergList')
-	#removeDevice(conn,'accell')
-	#deleteTable(conn,'deviceList')
-	addSensorData(conn,'accell',accellID,{'fx':2,'fy':2,'fz':2,'ax':23.4,'ay':13.4,'az':3.4,})
-	addSensorData(conn,'pulse',pulseID,{'pulse':83.4})
-	addSensorData(conn,'resp',respID,{'resp':18.2})
-
-	printTable(conn,'accellData')
-	printTable(conn,'pulseData')
-	printTable(conn,'respData')
-
-
-if __name__ == "__main__":
-	main()
-
-'''

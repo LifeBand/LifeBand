@@ -78,7 +78,7 @@ class serverController():
 				conn.sendto(json.dumps(self.model.getLatestDataFromDB()), (receivedIP,self.DEF_PORT))
 
 
-			elif dataDecoded['command'] == 'getPastData':
+			elif dataDecoded['command'] == 'getPulseDataSet':
 				print ('\t'+"Sending past Data")
 
 
