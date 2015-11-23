@@ -30,7 +30,7 @@ if __name__ == "__main__":
     
     row = 1
     t1 = time.time()
-    while abs(time.time() - t1)  < 10:
+    while abs(time.time() - t1)  < 60:
         t2 = time.time()
         delta_t = t2 - t1
         voltage = read()
@@ -38,7 +38,7 @@ if __name__ == "__main__":
         ws.write(row, 0,delta_t)
         ws.write(row, 1, voltage)
         row += 1
-	time.sleep(0.05)
+	time.sleep(0.025)
     wb.save('voltages.xls')
         
         
