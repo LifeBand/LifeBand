@@ -35,8 +35,8 @@ if __name__ == "__main__":
         delta_t = t2 - t1
         voltage = read()
 	print voltage
-        ws.write(0, row,delta_t)
-        ws.write(1, row, voltage)
+        ws.write(row, 0,delta_t)
+        ws.write(row, 1, voltage)
         row += 1
 	time.sleep(0.05)
     wb.save('voltages.xls')
