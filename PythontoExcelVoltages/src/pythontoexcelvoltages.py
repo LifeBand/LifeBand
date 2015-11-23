@@ -1,6 +1,5 @@
-import xlwt
-from datetime import datetime
-from __future__ import division 
+from __future__ import division
+import xlwt 
 import spidev 
 import time
 
@@ -33,11 +32,13 @@ if __name__ == "__main__":
     t1 = time.time()
     while abs(time.time() - t1)  < 10:
         t2 = time.time()
-        time = t2 - t1
+        delta_t = t2 - t1
         voltage = read()
-        ws.write(0, row, time)
+	print voltage
+        ws.write(0, row,delta_t)
         ws.write(1, row, voltage)
         row += 1
+	time.sleep(0.05)
     wb.save('voltages.xls')
         
         
