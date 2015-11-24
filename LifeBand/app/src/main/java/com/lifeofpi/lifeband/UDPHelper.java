@@ -15,9 +15,16 @@ import java.net.SocketTimeoutException;
  */
 public class UDPHelper {
 
+    public static final String PROTOCOL_DATA_KEY = "data";
+    public static final String PROTOCOL_PULSE_KEY = "pulse";
+    public static final String PROTOCOL_RESP_KEY = "resp";
+    public static final String PROTOCOL_ACC_KEY = "accell";
+
     public static final String SEND_FAILED = "Send Failed";
     public static final String RECEIVE_FAILED = "Receive Failed";
     public static final String UPDATE_UNAVAILABLE = "Update Unavailable";
+    public static final String DATA_INVALID = "Data Invalid";
+    public static final String ERROR_KEY = "error";
 
     public final JSONObject getLatestDataJSON = new JSONObject();
 
@@ -28,7 +35,7 @@ public class UDPHelper {
         }catch (Exception e){}
     }
 
-    public static boolean sendUDP(MainActivity mainActivity, JSONObject data, String ip, int port) {
+    public static boolean sendUDP(JSONObject data, String ip, int port) {
         try {
             InetAddress address = InetAddress.getByName(ip);
             byte[] sendData = data.toString().getBytes();
@@ -38,13 +45,11 @@ public class UDPHelper {
             socket.close();
             return true;
         }catch (Exception e) {
-            Log.e(MainActivity.TAG, SEND_FAILED, e);
-            mainActivity.displayToast(SEND_FAILED, Toast.LENGTH_SHORT);
             return false;
         }
     }
 
-    public static JSONObject receiveUDP(MainActivity mainActivity, int port, int time)  {
+    public static JSONObject receiveUDP(int port, int time)  {
         DatagramSocket socket = null;
         try {
             byte[] receiveData = new byte[1024];
@@ -62,10 +67,10 @@ public class UDPHelper {
             String message = RECEIVE_FAILED;
             if(e instanceof SocketTimeoutException)
                 message = UPDATE_UNAVAILABLE;
-            else
-                Log.e(MainActivity.TAG, RECEIVE_FAILED, e);
-            mainActivity.displayToast(message, Toast.LENGTH_SHORT);
-            return null;
+
+            JSONObject error = new JSONObject();
+            try{error.put(ERROR_KEY, message);}catch (Exception e1){}
+            return error;
         }
     }
 
