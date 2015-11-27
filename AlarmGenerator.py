@@ -1,28 +1,33 @@
+#Author: Derek White
+#Date: 11/23/2015
+#AlarmGenerator.py
+
+
 from random import randint
 
-hr_max_threshold = 100
-hr_min_threshold = 50
-hr_change_threshold = 10
+HR_MAX_THRESHOLD = 100
+HR_MIN_THRESHOLD = 50
+HR_CHANGE_THRESHOLD = 10
 #the largest change in heart rate before it is dangerous
 
-alarm = false
-safe_to_turn_off = true
-alarming = false
+alarm = False
+safeToTurnOff = True
+alarming = False
 
 
 def next_heart_rate():
     #receives the next heart rate
-    heart_rate = randint(40, 110)
-    return heart_rate
+    heartRate = randint(40, 110)
+    return heartRate
     
 def alarm_button_pressed():
-    safe_to_turn_off = true
+    safeToTurnOff = true
 
 #the first time through sets alarming true
 #if alarming is still true, the alarm will be raised
 def alarm_signal():
     if alarming:
-        safe_to_turn_off = false
+        safeToTurnOff = false
         alarm = true
         print("I am alarmed")
         #will also send a signal to the controller
@@ -30,19 +35,19 @@ def alarm_signal():
         alarming = true
     
 def turn_off_alarm():
-    if safe_to_turn_off:
+    if safeToTurnOff:
         alarm = false
     
 if __name__ == '__main__':
     alarming = false
     hr = next_heart_rate()
-    if hr < hr_min_threshold || hr > hr_max_threshold:
+    if hr < HR_MIN_THRESHOLD || hr > HR_MAX_THRESHOLD:
         alarm_signal()
-    last_hr = hr
+    lastHr = hr
     while true:
         hr = next_heart_rate()
-        if hr < hr_min_threshold || hr > hr_max_threshold || abs(hr - last_hr) > hr_change_threshold:
+        if hr < HR_MIN_THRESHOLD || hr > HR_MAX_THRESHOLD || abs(hr - lastHr) > HR_CHANGE_THRESHOLD:
             alarm_signal()
         else:
             turn_alarm_off()
-        last_hr = hr
+        lastHr = hr
