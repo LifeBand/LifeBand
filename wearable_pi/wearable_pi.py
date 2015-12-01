@@ -58,14 +58,15 @@ def BPM_reader_thread(beat_times, n):
     while True:
         voltage = read_pulse()
         if voltage > THRESHOLD:
-            print voltage
-			thread_sync (READ_THREAD,SEND_THREAD):
+            print "pulse"
+	    print  voltage
+	    thread_sync (READ_THREAD,SEND_THREAD)
             beat_times.append(time.time())
             flag[READ_THREAD] = False
             time.sleep(min_seconds_per_beat)
 
 def thread_sync (thread1,thread2):
-	flag[thread1] = True
+    flag[thread1] = True
     turn = thread2
     while flag[thread2] and turn == thread2:
         pass
@@ -73,7 +74,7 @@ def thread_sync (thread1,thread2):
 def calculate_average_bpm(beat_times):
     old_beat_times = []
     ref_time = time.time()
-	thread_sync (SEND_THREAD,READ_THREAD):
+    thread_sync (SEND_THREAD,READ_THREAD)
     remove_from_pulse (beat_times,ref_time,old_beat_times)
     length = len(beat_times)
     flag[SEND_THREAD] = False
@@ -82,7 +83,7 @@ def calculate_average_bpm(beat_times):
     return length*SECONDS_PER_MIN/(beat_times[length - 1] - beat_times[0])
 
 def remove_from_pulse (beat_times,ref_time,old_beat_times):
-	for b_time in beat_times:
+    for b_time in beat_times:
         if(abs(ref_time - b_time) > SAMPLE_PERIOD_IN_SEC):
             old_beat_times.append(b_time)
                 
@@ -103,6 +104,7 @@ def read_acceleration_to_dict(adxl345):
     return adxl345.getAxes(True)
 
 def send_magnitude(magnitude):
+    print "accel"
     print magnitude
     
 def check_magnitude(magnitude):
@@ -112,7 +114,7 @@ def send_alarm():
     print "                                 ALARM"
 	
 def acceloremetor_thread():
-	adxl345 = ADXL345()
+    adxl345 = ADXL345()
     while True:
        sleep(PERIOD_BETWEEN_SAMPLES)
        magnitude = get_magnitude_dict(read_acceleration_to_dict(adxl345))
@@ -121,14 +123,14 @@ def acceloremetor_thread():
            send_alarm()
 			
 def start_threads():
-	BPM_reader = threading.Thread(target = BPM_reader_thread, args=(beat_times,))
+    BPM_reader = threading.Thread(target = BPM_reader_thread, args=(beat_times,))
     BPM_sender = threading.Thread(target=BPM_sender_thread, args=(beat_times,))
-	accelerometer = threading.Thread(target= acceloremetor_thread)
-    threads.append(reader)
-    threads.append(sender)
-	threads.append(accelerometer)
-    reader.start()
-    sender.start()
+    accelerometer = threading.Thread(target= acceloremetor_thread)
+    threads.append(BPM_reader)
+    threads.append(BPM_sender)
+    threads.append(accelerometer)
+    BPM_reader.start()
+    BPM_sender.start()
     accelerometer.start()
 	
 	
@@ -137,3 +139,4 @@ if __name__ == "__main__":
     beat_times = []
     start_threads()
 	
+
