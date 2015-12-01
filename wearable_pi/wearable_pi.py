@@ -1,7 +1,7 @@
 from __future__ import division 
 from adxl345 import ADXL345
 import spidev 
-from time import sleep
+import time
 import threading 
 from math import sqrt
 
@@ -47,15 +47,17 @@ def read_pulse (adc_channel=0 , spi_channel=0):
 	return int(reply,2)/ 2**10
 
 def send(BPM):
+    print "BPM"
     print BPM
 
-def BPM_sender_thread(beat_times, n):
+def BPM_sender_thread(beat_times):
     while(True):
         time.sleep(SECONDS_PER_SEND)
         send(calculate_average_bpm(beat_times))
         
-def BPM_reader_thread(beat_times, n):
+def BPM_reader_thread(beat_times):
     while True:
+#	print "                                                         pulse"
         voltage = read_pulse()
         if voltage > THRESHOLD:
             print "pulse"
@@ -116,7 +118,7 @@ def send_alarm():
 def acceloremetor_thread():
     adxl345 = ADXL345()
     while True:
-       sleep(PERIOD_BETWEEN_SAMPLES)
+       time.sleep(PERIOD_BETWEEN_SAMPLES)
        magnitude = get_magnitude_dict(read_acceleration_to_dict(adxl345))
        send_magnitude(magnitude)
        if check_magnitude(magnitude):
