@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
-import random 
+import random
 sys.path.append(os.getcwd()+'/lib')
 import socket
 import pickle
@@ -34,16 +34,16 @@ def main():
 	sendData = {'id':'wearable','command':'getPatientInfo','data':1}
 	server.sendto(json.dumps(sendData),(SERVER_IP,SERVER_PORT))
 
-	
+
 	data_received, addr = UDPFunc.recvUDP(server)
 	data_decodded = json.loads(data_received)
 
-	print(	"Sender: "+ str(data_decodded['id']) + 
-			"\tName: " + str(data_decodded['data']['name']) + 
+	print(	"Sender: "+ str(data_decodded['id']) +
+			"\tName: " + str(data_decodded['data']['name']) +
 			'\taverage HeartRate: ' + str(data_decodded['data']['averageHeartRate'])
 			)
 
-	data = {'id':'wearable','command':'addPulseData','data':{'bpm':0,'forceMag':0}}
+	data = {'id':'wearable','command':'addSensorData','data':{'bpm':0,'forceMag':0}}
 
 	while True:
 		time.sleep(1)
@@ -52,5 +52,18 @@ def main():
 		print ( 'Time: '+ str(time.time()) + '\tBPM: '+ str(data['data']['pulse']) + '   \tforceMag: ' + str(data['data']['forceMag']) )
 		server.sendto(json.dumps(data),(SERVER_IP,SERVER_PORT))
 
+		if data['data']['forceMag'] >4 and data['data']['pulse'] >130:
+			if random.choice([True, False]):
+				server.sendto(json.dumps(
+							{'id':'wearable',
+							'command':'truePositiveAlarm'}
+							),
+							(SERVER_IP,SERVER_PORT))
+			else:
+				server.sendto(json.dumps(
+							{'id':'wearable',
+							'command':'falsePositiveAlarm'}
+							),
+							(SERVER_IP,SERVER_PORT))
 if __name__ == "__main__":
     main()
