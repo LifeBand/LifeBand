@@ -2,14 +2,17 @@ package com.lifeofpi.lifeband;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -22,6 +25,8 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
+    public static final String REGISTRATION_COMPLETE = "registrationComplete";
     public static final int RECEIVE_PERIOD = 3000;
     public static final String TAG = "LifeBand";
     public int notificationId;
@@ -30,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private Toolbar toolbar;
     public SharedPreferences sharedPreferences;
+    private BroadcastReceiver mBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +75,19 @@ public class MainActivity extends AppCompatActivity {
         });
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                boolean sentToken = sharedPreferences.getBoolean(SENT_TOKEN_TO_SERVER, false);
+                if(sentToken)
+                    displayToast("message sent", Toast.LENGTH_SHORT);
+                else
+                    displayToast("failed message sent", Toast.LENGTH_SHORT);
+            }
+        };
+        Intent intent = new Intent(this, RegistrationIntentService.class);
+        startService(intent);
     }
 
     @Override
@@ -92,6 +111,20 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver,
+                new IntentFilter(REGISTRATION_COMPLETE));
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+        super.onPause();
+
     }
 
     public void displayToast(final String text, final int duration){
