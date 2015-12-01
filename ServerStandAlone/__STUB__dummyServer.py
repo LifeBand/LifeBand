@@ -42,9 +42,9 @@ class ServerController():
 
 
 		"""
-		self.DEF_LISTEN_IP = ip
-		self.DEF_LISTEN_PORT = port_Listen
-		self.DEF_SEND_PORT = port_Send;
+		self.listen_ip = ip
+		self.listen_port = port_Listen
+		self.send_port = port_Send;
 
 
 
@@ -71,7 +71,7 @@ class ServerController():
 
 
 				response = {'id':'server','command':'putLatestData','data':{'pulse':random.randint(50,160),'accell':random.randint(0,10)}}
-				conn.sendto(json.dumps(response, (received_ip,self.DEF_SEND_PORT)))
+				conn.sendto(json.dumps(response, (received_ip,self.send_port)))
 
 
 			elif data_decoded['command'] == 'getPastDataSet':
@@ -83,7 +83,7 @@ class ServerController():
 					dataSet[i] = [random.randint(50,160),random.randint(0,5)]
 
 				response = {'id':'server','command':'putPastDataSet','data':dataSet}
-				conn.sendto(json.dumps(response), (received_ip,self.DEF_SEND_PORT))
+				conn.sendto(json.dumps(response), (received_ip,self.send_port))
 
 
 			elif data_decoded['command'] == 'addEmergencyContact':
@@ -101,7 +101,7 @@ class ServerController():
 
 				response = {'id':'server','command':'putEmergencyData','data':dataSet }
 
-				conn.sendto(json.dumps(response), (received_ip,self.DEF_SEND_PORT))
+				conn.sendto(json.dumps(response), (received_ip,self.send_port))
 
 
 
@@ -128,8 +128,9 @@ class ServerController():
 				dataSet = {'name':'George', 'averageHeartRate':random.randint(60,80)}
 
 				response = {'id':'server','command':'putPatientInfo','data':dataSet}
-				conn.sendto(json.dumps(response), (received_ip,self.DEF_SEND_PORT))
-
+				conn.sendto(json.dumps(response), (received_ip,self.send_port))
+			else:
+				print('\t Unknown command')
 
 
 
@@ -145,7 +146,7 @@ class ServerController():
 		None
 		"""
 
-		server = UDPFunc.createUDPSocket(self.DEF_LISTEN_IP,self.DEF_LISTEN_PORT)
+		server = UDPFunc.createUDPSocket(self.listen_ip,self.listen_port)
 
 
 		print("Server STUB Created")
