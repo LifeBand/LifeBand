@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/swipe_container"
+    android:id="@+id/swipe_container_overview"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -9,100 +8,96 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <TableLayout
+            android:id="@+id/overview_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:gravity="top"
+            android:stretchColumns="2">
 
-            <TableLayout
-                android:id="@+id/overview_layout"
+            <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="top"
-                android:stretchColumns="2">
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:weightSum="1">
 
-                <TableRow
+                <TextView
+                    android:id="@+id/heartbeatTextView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:weightSum="1">
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:layout_weight="0.6"
+                    android:text="Heartbeat"
+                    android:textSize="20sp" />
 
-                    <TextView
-                        android:id="@+id/heartbeatTextView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_column="0"
-                        android:layout_weight="0.6"
-                        android:text="Heartbeat"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/currentHeartbeatTextView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_column="1"
-                        android:layout_weight="0.4"
-                        android:gravity="start"
-                        android:text="5"
-                        android:textSize="35sp" />
-
-                </TableRow>
-
-                <TableRow
+                <TextView
+                    android:id="@+id/currentHeartbeatTextView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:measureWithLargestChild="false"
-                    android:orientation="horizontal"
-                    android:weightSum="1">
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:layout_weight="0.4"
+                    android:gravity="start"
+                    android:text="5"
+                    android:textSize="35sp" />
 
-                    <TextView
-                        android:id="@+id/respirationTextView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_column="0"
-                        android:layout_weight="0.6"
-                        android:text="Respiratory Rate"
-                        android:textSize="20sp" />
+            </TableRow>
 
-                    <TextView
-                        android:id="@+id/currentRespirationTextView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_column="1"
-                        android:layout_weight="0.4"
-                        android:gravity="start"
-                        android:text="5"
-                        android:textSize="35sp" />
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:measureWithLargestChild="false"
+                android:orientation="horizontal"
+                android:weightSum="1">
 
-                </TableRow>
-
-                <TableRow
+                <TextView
+                    android:id="@+id/respirationTextView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:weightSum="1">
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:layout_weight="0.6"
+                    android:text="Respiratory Rate"
+                    android:textSize="20sp" />
 
-                    <TextView
-                        android:id="@+id/accelerationTextView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_column="0"
-                        android:layout_weight="0.6"
-                        android:text="Max Impact within Hour"
-                        android:textSize="20sp" />
+                <TextView
+                    android:id="@+id/currentRespirationTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:layout_weight="0.4"
+                    android:gravity="start"
+                    android:text="5"
+                    android:textSize="35sp" />
 
-                    <TextView
-                        android:id="@+id/currentAccelerationTextView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_column="1"
-                        android:layout_weight="0.4"
-                        android:gravity="start"
-                        android:text="5"
-                        android:textSize="35sp" />
-                </TableRow>
-            </TableLayout>
+            </TableRow>
 
-        </LinearLayout>
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:weightSum="1">
+
+                <TextView
+                    android:id="@+id/accelerationTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:layout_weight="0.6"
+                    android:text="Max Impact within Hour"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/currentAccelerationTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:layout_weight="0.4"
+                    android:gravity="start"
+                    android:text="5"
+                    android:textSize="35sp" />
+            </TableRow>
+        </TableLayout>
+
     </ScrollView>
+
 </android.support.v4.widget.SwipeRefreshLayout>
+

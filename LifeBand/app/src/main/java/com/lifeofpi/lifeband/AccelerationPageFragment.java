@@ -1,6 +1,7 @@
 package com.lifeofpi.lifeband;
 
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,10 +21,16 @@ public class AccelerationPageFragment extends PageFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_acceleration_tab, container, false);
-        TextView textView = (TextView) view;
-        textView.setText(NAME + " #" + mPage);
+
+        setupRefresh((SwipeRefreshLayout) view);
+
+//        TextView textView = (TextView) view;
+//        textView.setText(NAME + " #" + mPage);
         return view;
     }
 
+    @Override
+    public void updateView() {
 
+    }
 }
