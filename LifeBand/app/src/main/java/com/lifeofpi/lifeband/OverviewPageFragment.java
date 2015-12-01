@@ -56,10 +56,15 @@ public class OverviewPageFragment extends PageFragment {
     }
 
     @Override
-    public void updateView() {
+    public void update() {
         DataPoint[] heartbeats = lifeBand.getHeartbeats();
         DataPoint[] accelerations = lifeBand.getAccelerations();
-        currentHeartbeatTextView.setText(heartbeats[heartbeats.length - 1].getY() + "");
-        currentAccelerationTextView.setText(accelerations[accelerations.length - 1].getY() + "");
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                currentHeartbeatTextView.setText(heartbeats[heartbeats.length - 1].getY() + "");
+                currentAccelerationTextView.setText(accelerations[accelerations.length - 1].getY() + "");
+            }
+        });
     }
 }

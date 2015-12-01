@@ -9,9 +9,13 @@
     <string name="ip_key">KEY_PREF_IP</string>
     <string name="ip_title">IP Address</string>
 
-    <string name="port_default">8008</string>
-    <string name="port_key">KEY_PREF_PORT</string>
-    <string name="port_title">Port</string>
+    <string name="send_port_default">5005</string>
+    <string name="send_port_key">KEY_PREF_PORT_SEND</string>
+    <string name="send_port_title">Send Port</string>
+
+    <string name="receive_port_default">6006</string>
+    <string name="receive_port_key">KEY_PREF_PORT_RECEIVE</string>
+    <string name="receive_port_title">Receive Port</string>
 
     <string name="name_default">NAME</string>
     <string name="name_key">KEY_PREF_NAME</string>

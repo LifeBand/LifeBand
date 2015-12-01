@@ -1,7 +1,5 @@
 package com.lifeofpi.lifeband;
 
-import android.view.View;
-
 import com.jjoe64.graphview.series.DataPoint;
 
 /**
@@ -23,7 +21,7 @@ public class LifeBandModel {
     }
 
     public void updateView(){
-        view.updateView();
+        view.update();
     }
 
     public DataPoint[] getAccelerations() {

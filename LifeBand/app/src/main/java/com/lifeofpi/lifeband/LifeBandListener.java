@@ -5,5 +5,5 @@ package com.lifeofpi.lifeband;
  */
 public interface LifeBandListener {
 
-    public void updateView();
+    public void update();
 }

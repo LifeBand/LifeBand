@@ -30,14 +30,18 @@ public class HeartbeatPageFragment extends PageFragment {
         setupRefresh((SwipeRefreshLayout) view);
 
         graphView = (GraphView) view.findViewById(R.id.heartbeat_graph);
+        graphView.getViewport().setScrollable(true);
+        graphView.getViewport().setScalable(true);
         return view;
     }
 
     @Override
-    public void updateView() {
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(lifeBand.getHeartbeats());
-        graphView.getViewport().setScrollable(true);
-        graphView.getViewport().setScalable(true);
-        graphView.addSeries(series);
+    public void update() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                graphView.addSeries(new LineGraphSeries<>(lifeBand.getHeartbeats()));
+            }
+        });
     }
 }

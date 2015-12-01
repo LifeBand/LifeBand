@@ -43,7 +43,7 @@ public class LifeBandRefresher implements Runnable {
     * contents of the message are defined by LifeBand's data transfer protocol*/
     private boolean requestRefreshData(){
         JSONObject latestDataJSON = new UDPHelper().getLatestDataJSON;
-        boolean send = UDPHelper.sendUDP(latestDataJSON, getIP(), getPort());
+        boolean send = UDPHelper.sendUDP(latestDataJSON, getIP(), getSendPort());
         if(!send)
             mainActivity.displayToast(UDPHelper.SEND_FAILED, Toast.LENGTH_SHORT);
         return send;
@@ -52,7 +52,7 @@ public class LifeBandRefresher implements Runnable {
     /*The method calls the receive function and returns the result.
     *   return: the data received from the get latest data request*/
     private JSONObject getRefreshData(){
-        return UDPHelper.receiveUDP(getPort(), MainActivity.RECEIVE_PERIOD);
+        return UDPHelper.receiveUDP(getReceivePort(), MainActivity.RECEIVE_PERIOD);
     }
 
     /*The method checks the JSON data for errors, if an error key exists, the error message is
@@ -103,21 +103,6 @@ public class LifeBandRefresher implements Runnable {
         }
     }
 
-    /*Method updates all fields in the overview tab with the values passed in
-    * input: pulse - the next value to be displayed by the pulse textview
-    * input: acc - the new acceleration value
-    * return: NA*/
-    private void updateOverview(final double pulse, final double acc) {
-        /*Any changes to the GUI need to be made on the UI thread. Even though new pulse value
-        * is retrieved in another thread, the update of the view must happen in UI thread*/
-        mainActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        });
-    }
-
     /*The method provides a short-hand for retrieving strings from the string resources.
     *   input: the id of the string in question
     *   return: the string with the provided id*/
@@ -135,11 +120,20 @@ public class LifeBandRefresher implements Runnable {
 
     /*The method returns the port from shared preferences with the key "port_key"
      *  return: port */
-    private int getPort(){
-        String key = getStringFromResources(R.string.port_key);
-        String def = getStringFromResources(R.string.port_default);
+    private int getSendPort(){
+        String key = getStringFromResources(R.string.send_port_key);
+        String def = getStringFromResources(R.string.send_port_default);
         return Integer.valueOf(getSharedPreferences(key, def));
     }
+
+    /*The method returns the port from shared preferences with the key "port_key"
+     *  return: port */
+    private int getReceivePort(){
+        String key = getStringFromResources(R.string.receive_port_key);
+        String def = getStringFromResources(R.string.receive_port_default);
+        return Integer.valueOf(getSharedPreferences(key, def));
+    }
+
 
     /*The method returns the IP as a string from the shared preferences
     *   return: IP*/
