@@ -37,7 +37,6 @@ class alarm_handler:
         self.sendingSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.heartbeats = []
         self.currentIndex = 0
-        self.avgBPM
         send_message('getPatientInfo', '')
 
     """
@@ -55,7 +54,7 @@ class alarm_handler:
     def check_button():
         if(GPIO.input(17) and alarming < 10):
             send_message('falsePositiveAlarm','')
-            alarming =10
+            alarm = False
             
     """
     does the countdown for the alarm and sending the message to the server once it has been reached
@@ -63,6 +62,8 @@ class alarm_handler:
     def heartbeat_alarm_signal():
         if alarming > 1:
             alarming -= 1
+            if alarming == 0:
+                alarm = True
         elif not alarm:
             send_message('truePositiveAlarm','')
     
@@ -74,6 +75,8 @@ class alarm_handler:
         currentIndex = (currentIndex + 1)%bufsize
         if heartbeat > maxThreshold or heartbeat < minThreshold or abs(heartbeat - heartbeats[currentIndex - 1]) > maxChange:
             heartbeat_alarm_signal()
+        else:
+            alarming = 10
 
     """
     Calculates the average bpm from the last time this function was called
