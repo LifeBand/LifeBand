@@ -93,10 +93,11 @@ class alarm_handler:
                 return
             runningTotal += heartbeats[currentIndex - i]['bpm']
             i+=1
+            
   """
   checks for a response from the server for its getPatientInfo request
   """
-    def answer_phone():
+    def get_new_thresholds():
         data, addr = rcvSock.recvfrom(MY_PORT)
         stuff = json.loads(data)
         if stuff['id'] == 'server' and stuff['command'] == 'putPatientInfo':
