@@ -13,10 +13,10 @@ import UDPFunc
 import databaseFunc as dbFunc
 
 
-CUR_IP = '127.0.0.1'
+CUR_IP = '0.0.0.0'
 CUR_PORT = 6006
 
-SERVER_IP = '127.0.0.1'
+SERVER_IP = '192.168.1.102' #27.0.0.1'
 SERVER_PORT = 5005
 
 pulseID = 0
@@ -25,11 +25,14 @@ accellID = 0
 
 
 
-def main():
+def main(argv):
 	initTime = time.time
 	#Create the server socket and bind it to the IP and the PORT
 	server = UDPFunc.createUDPSocket(CUR_IP,CUR_PORT)
-	time.sleep(5)
+
+	SERVER_IP = str(argv[1])
+
+	time.sleep(2)
 
 	sendData = {'id':'wearable','command':'getPatientInfo','data':1}
 	server.sendto(json.dumps(sendData),(SERVER_IP,SERVER_PORT))
@@ -51,6 +54,7 @@ def main():
 		data['data']['bpm'] = random.randint(50,160)
 		data['data']['forceMag'] = random.randint(0,6)
 		print ( 'Time: '+ str(time.time()) + '\tBPM: '+ str(data['data']['bpm']) + '   \tforceMag: ' + str(data['data']['forceMag']) )
+
 		server.sendto(json.dumps(data),(SERVER_IP,SERVER_PORT))
 
 		if data['data']['forceMag'] >4 and data['data']['bpm'] >130:
@@ -69,4 +73,4 @@ def main():
 							),
 							(SERVER_IP,SERVER_PORT))
 if __name__ == "__main__":
-    main()
+    main(sys.argv)

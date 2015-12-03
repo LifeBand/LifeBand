@@ -1,0 +1,11 @@
+language: python
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+install:
+  - pip install mock
+  - pip install coveralls
+script: coverage run --include gcm/gcm.py gcm/test.py
+after_success:
+    coveralls

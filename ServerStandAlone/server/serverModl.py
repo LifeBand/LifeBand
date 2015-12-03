@@ -177,16 +177,14 @@ class ServerModel():
 			print ("Error: change_emerg_contact_in_db: Incompatible Input parameter type "+ sys.exc_info()[0])
 			raise
 
-	def get_emerg_contact_from_db(emerg_contact_data):
+	def get_emerg_contact_from_db(self):
 		"""
 		Function: Gets all Emergency contact with the same name passed in data
 		"""
-
-		if type(emerg_contact_data) == type(dict):
-			conn = sqlite3.connect(self.db_path)
-			response = conn.cursor().execute('SELECT name,phone,email FROM '+str(tableName)).fetchall();
-			conn.close()
-			return {'id':'server','command':'putEmergencyContact','data':response}
+		conn = sqlite3.connect(self.db_path)
+		response = conn.cursor().execute('SELECT name,phone,email FROM '+str(tableName)).fetchall();
+		conn.close()
+		return {'id':'server','command':'putEmergencyContact','data':response}
 
 
 	def add_sensor_data_to_db(self,sensor_name,sensor_data):
@@ -266,25 +264,25 @@ class ServerModel():
 			data = list()
 			last_30_second_floor = time.time() - 30 #((time.time()-10)%DEF_SNAPSHOT_DATA_INTERVAL)
 			query = conn.cursor().execute('SELECT bpm,forceMag FROM '+DEF_TABLE_NAME_SENSOR_DATA+' WHERE timeStamp > '+ str(last_30_second_floor) ).fetchall()
-			print query
+			#print query
+			if query is not None:
+				for row in query:
+					data.append(row[0])
+				avgBPM =  reduce(lambda x, y: x + y, data) / len(data)
 
-			for row in query:
-				data.append(row[0])
-			avgBPM =  reduce(lambda x, y: x + y, data) / len(data)
+				data = list()
+				for row in query:
+					data.append(row[1])
+				avgForceMag =  reduce(lambda x, y: x + y, data) / len(data)
 
-			data = list()
-			for row in query:
-				data.append(row[1])
-			avgForceMag =  reduce(lambda x, y: x + y, data) / len(data)
+				print avgBPM , avgForceMag
 
-			print avgBPM , avgForceMag
+				conn.cursor().execute('INSERT INTO '+ DEF_TABLE_NAME_SNAPSHOT_DATA + ' (timeStamp,bpm, forceMag) Values (?,?,?)',(last_30_second_floor,avgBPM,avgForceMag))
+				conn.commit()
 
-			conn.cursor().execute('INSERT INTO '+ DEF_TABLE_NAME_SNAPSHOT_DATA + ' (timeStamp,bpm, forceMag) Values (?,?,?)',(last_30_second_floor,avgBPM,avgForceMag))
-			conn.commit()
+				dbFunc.print_table(conn,DEF_TABLE_NAME_SNAPSHOT_DATA)
 
-			dbFunc.print_table(conn,DEF_TABLE_NAME_SNAPSHOT_DATA)
-
-			conn.close()
+				conn.close()
 
 			Timer(DEF_SNAPSHOT_DATA_INTERVAL, self.calculate_snapshot_data, () ).start()
 		except KeyboardInterrupt:
