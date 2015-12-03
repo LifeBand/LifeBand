@@ -163,9 +163,9 @@ class ServerModel():
 				conn.cursor().execute('INSERT INTO '+
 						str(DEF_TABLE_NAME_EMERG)+
 						' (contactID,name,phone,email) VALUES (?,?,?,?,?)',
-						(contactID,data['name'],float(data['phone']),data['email']))
+						(self.contactID,data['name'],float(data['phone']),data['email']))
 				conn.commit()
-				contactID+= 1
+				self.contactID+= 1
 
 			elif behaviour == 'rem':
 				dbFunc.checkForSQLInjection(str(emerg_contact_data['name']))
