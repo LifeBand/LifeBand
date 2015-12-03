@@ -1,110 +1,73 @@
+__author__ = "Irusha Vidanamadura"
+__date__ = "11-23-2015"
+
 import databaseFunc as dbFunc
 import sqlite3
 import random
 import time
-class serverModel():
+from threading import Timer
+import numpy
 
-	"""Dictionaries for established database structure"""
-	emergListCols = [ 
-						['contactID','TEXT'] , 
-						['name', 'TEXT'] , 
-						['phone', 'INT'] , 
-						['email','TEXT'] , 
-						['twitter','TEXT'] 
-					]
-
-
-	devListCols = 	[	 
-						['DEVID','TEXT'] , 
-						['devName', 'TEXT'] , 
-						['sampRate', 'INT'] , 
-						['unit','TEXT'] 
-					]
+"""Dictionaries for established database structure"""
+DEF_HALF_MINUTE_IN_SECONDS = 30 #1800
+DEF_1_DAY_IN_SECONDS = 60
+DEF_TABLE_NAME_EMERG = 'emergList'
+DEF_TABLE_NAME_ALARM = 'alarmList'
+DEF_TABLE_NAME_SENSOR_DATA = 'sensorData'
+DEF_TABLE_NAME_SNAPSHOT_DATA = 'snapshotData'
+DEF_SNAPSHOT_DATA_INTERVAL = DEF_HALF_MINUTE_IN_SECONDS
 
 
-	alarmListCols = [	 
-						['timeStamp','TEXT'] , 
-						['status', 'TEXT'] 
-					]
-
-	snapshotDataCols= [
-						['timeStamp','REAL'],
-						['heartBeat', 'REAL'],
-						['breatheRate', 'REAL']
-					]
-
-	pulseDataCols = [	 
-						['DEVID','TEXT'] , 
-						['timeStamp', 'REAL'] , 
-						['pulse', 'REAL'] 
-					]
-
-	respDataCols = 	[	 
-						['DEVID','TEXT'] , 
-						['timeStamp', 'REAL'] , 
-						['resp', 'REAL'] 
-					]
-
-	accellDataCols= [	 
-						['DEVID','TEXT'] , 
-						['timeStamp', 'REAL'] , 
-						['fx', 'REAL'] ,
-						['fy', 'REAL'] ,
-						['fz', 'REAL'] ,
-						['ax', 'REAL'] ,
-						['ay', 'REAL'] ,
-						['az', 'REAL'] 
-					]
-
-	def __init__(self,dataBasePath):
-		self.devIDCount = 0
-		self.DEF_DB_PATH = dataBasePath 
-		self.pulseID = 0
-		self.respID = 0
-		self.accellID = 0
+DEF_TABLE_COLS_EMERG = [
+					['DEVID','TEXT'],
+					['contactID','TEXT'] ,
+					['name', 'TEXT'] ,
+					['phone', 'INT'] ,
+					['email','TEXT']
+				]
 
 
-	def addAlarmToDB(self,alarmStatus):
-		if type(alarmStatus) == type(str()):
-			conn = sqlite3.connect(self.DEF_DB_PATH)
-			dbFunc.addAlarmData(conn,'alarmList',alarmStatus)
-			conn.close()
-		else:
-			print ("Error: addAlarmToDB: Input parameter not string"+ sys.exc_info()[0])
-			raise 
+DEF_TABLE_COLS_DEVICES = 	[
+					['DEVID','TEXT'] ,
+					['devName', 'TEXT'] ,
+					['sampRate', 'INT'] ,
+					['unit','TEXT']
+				]
 
-	def addSensorDataToDB(self,sensorName,sensorData):
-		if type(sensorName) == type(str()) and type(sensorData) == type(dict()):
-			conn = sqlite3.connect(self.DEF_DB_PATH)
-			if sensorName == 'accell':
-				dbFunc.addSensorData(conn,sensorName,self.accellID,sensorData)
-			elif sensorName == 'resp':
-				dbFunc.addSensorData(conn,sensorName,self.respID,sensorData)
-			elif sensorName == 'pulse':
-				dbFunc.addSensorData(conn,sensorName,self.pulseID,sensorData)
-			conn.close()
-		else:
-			print ("Error: addSensorDataToDB: Incompatible Input parameter type "+ sys.exc_info()[0])
-			raise 
+
+DEF_TABLE_COLS_ALARM = [
+					['timeStamp','REAL'] ,
+					['status', 'TEXT']
+				]
+
+DEF_TABLE_COLS_SNAPSHOT_DATA= [
+					['timeStamp','REAL'],
+					['bpm', 'REAL'],
+					['forceMag', 'REAL']
+				]
+DEF_TABLE_COLS_SENSOR_DATA = [
+					['DEVID','TEXT'] ,
+					['timeStamp', 'REAL'] ,
+					['bpm', 'REAL'] ,
+					['forceMag','REAL']
+				]
+
+class ServerModel():
 
 
 
-	def changeEmergContactTDB(self,behaviour,emergContactData):
-		if type(behaviour) == type(str()) and type(emergContactData) == type(dict()):
-			if behaviour == 'add':
-				addEmergContactInfo('add','emergList',emergContactData)
-			elif behaviour == 'rem':
-					remEmergContactInfo('rem','emergList',emergContactData)
-			conn.close()
-		else:
-			print ("Error: changeEmergContactTDB: Incompatible Input parameter type "+ sys.exc_info()[0])
-			raise 
 
-	
+	def __init__(self,database_path):
+		self.dev_id_count = 0
+		self.db_path = database_path
+		self.contactID = 0
+		#self.pulse_id = 0
+		#self.resp_id = 0
+		#self.accell_id = 0
 
-	def createSensorDatabase(self):
+	def create_sensor_database(self):
 		"""
-		Function:	
+		Function:
 		Create the Database tables for syste
 
 		Input arguments:
@@ -114,23 +77,22 @@ class serverModel():
 		None
 		"""
 
-		conn = sqlite3.connect(self.DEF_DB_PATH)
+		conn = sqlite3.connect(self.db_path)
 
-		dbFunc.createTable(conn,'deviceList',self.devListCols )
-		dbFunc.createTable(conn,'emergContactList', self.emergListCols )
-		dbFunc.createTable(conn,'alarmList', self.emergListCols )
-		dbFunc.createTable(conn,'snapshotData', self.snapshotDataCols )
+		#dbFunc.create_table(conn,'deviceList',self.DEF_TABLE_COLS_DEVICES )
 
-		self.pulseID = dbFunc.addDevice(conn,'pulse','bpm',self.pulseDataCols)
-		self.accellID = dbFunc.addDevice(conn,'accell','N',self.accellDataCols)
-		self.respID = dbFunc.addDevice(conn,'resp','mps',self.respDataCols)
+		dbFunc.create_table(conn,DEF_TABLE_NAME_EMERG, DEF_TABLE_COLS_EMERG )
+		dbFunc.create_table(conn,DEF_TABLE_NAME_ALARM, DEF_TABLE_COLS_ALARM )
+		dbFunc.create_table(conn,DEF_TABLE_NAME_SNAPSHOT_DATA, DEF_TABLE_COLS_SNAPSHOT_DATA )
+		dbFunc.create_table(conn,DEF_TABLE_NAME_SENSOR_DATA, DEF_TABLE_COLS_SENSOR_DATA)
+
 
 		conn.close()
 
 
-	def maintainDatabaseSize(self):
+	def maintain_databse_size(self):
 		"""
-		Function:	
+		Function:
 		Maintain the Database of sensor reading to within 90 days
 
 		Input arguments:
@@ -140,7 +102,7 @@ class serverModel():
 		None
 		"""
 
-		conn = sqlite3.connect(self.DEF_DB_PATH)
+		conn = sqlite3.connect(self.db_path)
 
 		conn.cursor().execute('DELETE FROM deviceList WHERE timeStamp < '+str(time.time()-DEF_2_DAYS_IN_SECONDS))
 		conn.commit()
@@ -148,80 +110,183 @@ class serverModel():
 		conn.close()
 
 
-	def getLatestDataFromDB(self):
-		conn = sqlite3.connect(self.DEF_DB_PATH)
-		queryPulse = conn.cursor().execute('SELECT pulse FROM pulseData ORDER BY timeStamp DESC LIMIT 1' ).fetchone()
-			
+
+
+	def get_latest_data_from_db(self):
 		'''
-		pulseD = random.randint(50,160)
-		respD = random.randint(50,160)
-		accellD = random.randint(50,160)
-		accellD = random.randint(50,160)
-		conn.close()
-		response = {'id':'server','command':'putLatestData','data':{'pulse':pulseD,'resp':respD,'accell':accellD}}
+		Function: Getting latest BPM and Accell Data from the Database
+		Input arguments:
+			None
+		Outputs arguments:
+		 	response (Dictionary) <-- Contains fields to be sent back
 		'''
-		
-		response = {'id':'server','command':'putLatestData','data':{'pulse':queryPulse[0],'resp':99,'accell':62}}
-		
+		conn = sqlite3.connect(self.db_path)
+		query_data = conn.cursor().execute('SELECT bpm,forceMag FROM ' + DEF_TABLE_NAME_SENSOR_DATA +' ORDER BY timeStamp DESC LIMIT 1' ).fetchone()
+		return {'id':'server','command':'putLatestData','data':{'bpm':query_data[0],'forceMag':query_data[1]} }
+
+
+	def get_past_data_from_db(self,received_data):
+		'''
+		Function: Getting past BPM and Accell Data from the Database
+		Input arguments:
+			None
+		Outputs arguments:
+		 	response (Dictionary) <-- Contains fields to be sent back
+		'''
+		response_data ={}
+		print received_data
+		conn = sqlite3.connect(self.db_path)
+		dbFunc.checkForSQLInjection(str(received_data['numPoints']))
+		query_data = conn.cursor().execute('SELECT timeStamp,bpm,forceMag FROM  ' + DEF_TABLE_NAME_SENSOR_DATA + ' ORDER BY timeStamp DESC LIMIT '+str(received_data['numPoints']) ).fetchall()
+		#print query_data
+
+		for row in query_data:
+			#print row[1]
+			response_data[str(row[0])] = [row[1],row[2]]
+		print response_data
+		response =  {'id':'server','command':'putLatestData','data':response_data}
 		return response
 
-	def getpulseDataSetFromDB(self,numPoints):
-		conn = sqlite3.connect(self.DEF_DB_PATH)
-		queryPulse = conn.cursor().execute('SELECT timeStamp,pulse FROM pulseData DESC LIMIT '+str(numPoints)).fetchall()
-			
-		'''
-		pulseD = random.randint(50,160)
-		respD = random.randint(50,160)
-		accellD = random.randint(50,160)
-		accellD = random.randint(50,160)
-		conn.close()
-		response = {'id':'server','command':'putLatestData','data':{'pulse':pulseD,'resp':respD,'accell':accellD}}
-		'''
-		
-		response = {'id':'server','command':'putLatestData','data':queryPulse}
-		
-		return response
 
+	def change_emerg_contact_in_db(self,behaviour,emerg_contact_data):
+		"""
+		Function: Removes or Adds the Emergency contact with the name passed in data
+		"""
+		if type(behaviour) == type(str()) and type(emerg_contact_data) == type(dict()):
+			conn = sqlite3.connect(self.db_path)
+			if behaviour == 'add':
 
-	def startDataCalculation(self):
-		s = sched.scheduler(time.time, time.sleep)
-		s.enter(DEF_HALF_HOUR_IN_SECONDS, 1, calculateHourlyData, (s,))
-		s.run()
+				dbFunc.checkForSQLInjection(str(emerg_contact_data['name']))
+				dbFunc.checkForSQLInjection(str(emerg_contact_data['phone']))
+				dbFunc.checkForSQLInjection(str(emerg_contact_data['email']))
 
-	def calculateHourlyData(self,sched): 
-		try:
-			print ('\t'+str(time.ctime())+"Calculating average values")
-			conn = sqlite3.connect(DEF_DB_PATH)
-			data = list()
+				conn.cursor().execute('INSERT INTO '+
+						str(DEF_TABLE_NAME_EMERG)+
+						' (contactID,name,phone,email) VALUES (?,?,?,?,?)',
+						(contactID,data['name'],float(data['phone']),data['email']))
+				conn.commit()
+				contactID+= 1
 
-			query = conn.cursor().execute('SELECT pulse FROM pulseData WHERE timeStamp > ? ', [(time.time()-(time.time()%DEF_HALF_HOUR_IN_SECONDS))] )
-			#query = conn.cursor().fetchall()
-			#print (str(conn.cursor().fetchall()))
-			for row in query:
-				data.append(str(row))
-				#print(row)
-
-			print(data)
-			#query =  [i[1] for i in query]
-			#print(type(query))
-			#print(query)
-			#print(type(query[0]))
-			pulsePerHour = (lambda x, y: x + y, data )/ len(data)
-
-			#query =conn.cursor().execute('SELECT resp FROM respData WHERE timeStamp<'+str(time.time())+' AND timeStamp > '+str(time.time()-(time.time()%DEF_HALF_HOUR_IN_SECONDS)))
-			#query = conn.fetchall()
-			#respPerHour = (lambda x, y: x + y, query )/ len(query)
-
-			#dbFunc.addSnapshotData(conn,'snapshotData',{'heartBeat':pulsePerHour,'breatheRate':respPerHour})
+			elif behaviour == 'rem':
+				dbFunc.checkForSQLInjection(str(emerg_contact_data['name']))
+				conn.cursor().execute('DELETE FROM '+str(DEF_TABLE_NAME_EMERG)+' WHERE name = \'' + str(emerg_contact_data['name'])+'\'')
+				conn.commit()
 
 			conn.close()
+		else:
+			print ("Error: change_emerg_contact_in_db: Incompatible Input parameter type "+ sys.exc_info()[0])
+			raise
 
-			sched.enter(DEF_HALF_HOUR_IN_SECONDS, 1, calculateHourlyData, (sched,))
+	def get_emerg_contact_from_db(emerg_contact_data):
+		"""
+		Function: Gets all Emergency contact with the same name passed in data
+		"""
+
+		if type(emerg_contact_data) == type(dict):
+			conn = sqlite3.connect(self.db_path)
+			response = conn.cursor().execute('SELECT name,phone,email FROM '+str(tableName)).fetchall();
+			conn.close()
+			return {'id':'server','command':'putEmergencyContact','data':response}
+
+
+	def add_sensor_data_to_db(self,sensor_name,sensor_data):
+		if type(sensor_name) == type(str()) and type(sensor_data) == type(dict()):
+			conn = sqlite3.connect(self.db_path)
+
+			dbFunc.checkForSQLInjection(str(sensor_data['timeStamp']))
+			dbFunc.checkForSQLInjection(str(sensor_data['bpm']))
+			dbFunc.checkForSQLInjection(str(sensor_data['forceMag']))
+
+			conn.cursor().execute('INSERT INTO '+str(DEF_TABLE_NAME_SENSOR_DATA)+'(DEVID,timeStamp,bpm,forceMag) VALUES (?,?,?,?)',
+					('1',
+					float(sensor_data['timeStamp']),
+					float(sensor_data['bpm']),
+					float(sensor_data['forceMag'])) )
+			conn.commit()
+			conn.close()
+
+		else:
+			print ("Error: add_sensor_data_to_db: Incompatible Input parameter type "+ sys.exc_info()[0])
+			raise
+
+	def add_alarm_to_db(self,alarm_status,alarm_data):
+		if type(alarm_status) == type(str()):
+			conn = sqlite3.connect(self.db_path)
+			conn.cursor().execute('INSERT INTO '+str(DEF_TABLE_NAME_ALARM)+'(timeStamp,status) VALUES (?,?)',(float(alarm_data['timeStamp']),alarm_status))
+			conn.commit()
+			conn.close()
+		else:
+			print ("Error: add_alarm_to_db: Input parameter not string"+ sys.exc_info()[0])
+			raise
+
+	def get_patient_info_from_db(self, patient_data):
+		try:
+			#conn = sqlite3.connect(self.db_path)
+			#data = get_emergency_contact_info(conn, tableName)
+			#conn.close()
+			dataSet = {'name':'George', 'min':60, 'max':100, 'change':15}
+
+			return {'id':'server','command':'putPatientInfo','data':dataSet}
+
+		except:
+			print ("Error: get_patient_info_from_db: "+ sys.exc_info()[0])
+			raise
+
+
+
+#	def get_latest_pulse_from_db(self,numPoints):
+#		conn = sqlite3.connect(self.db_path)
+#		query_data = conn.cursor().execute('SELECT timeStamp,pulse FROM pulseData DESC LIMIT '+str(numPoints)).fetchall()
+#
+#
+#		response = {'id':'server','command':'putLatestData','data':query_data}
+#
+	#	return response
+
+	def start_snpashot_routine(self):
+		Timer(DEF_SNAPSHOT_DATA_INTERVAL, self.calculate_snapshot_data, () ).start()
+		Timer(DEF_1_DAY_IN_SECONDS, self.remove_older_sensor_data, () ).start()
+
+	def remove_older_sensor_data(self):
+		try:
+			print ('\t'+str(time.ctime())+"Deleting data older than 2 days")
+			conn = sqlite3.connect(self.db_path)
+			conn.cursor().execute('DELETE FROM '+DEF_TABLE_NAME_SENSOR_DATA+' WHERE timeStamp < '+ str(time.time() - DEF_1_DAY_IN_SECONDS*2) )
+			conn.commit()
+			conn.close()
+			Timer(DEF_1_DAY_IN_SECONDS, self.remove_older_sensor_data, () ).start()
 		except KeyboardInterrupt:
 			print ("Shutdown requested...exiting")
 			sys.exit(0)
-		#except Exception:
-			#traceback.print_exc(file=sys.stdout)
-		#sys.exit(0)
 
+	def calculate_snapshot_data(self):
+		try:
+			print ('\t'+str(time.ctime())+"Calculating average values")
+			conn = sqlite3.connect(self.db_path)
+			data = list()
+			last_30_second_floor = time.time() - 30 #((time.time()-10)%DEF_SNAPSHOT_DATA_INTERVAL)
+			query = conn.cursor().execute('SELECT bpm,forceMag FROM '+DEF_TABLE_NAME_SENSOR_DATA+' WHERE timeStamp > '+ str(last_30_second_floor) ).fetchall()
+			print query
 
+			for row in query:
+				data.append(row[0])
+			avgBPM =  reduce(lambda x, y: x + y, data) / len(data)
+
+			data = list()
+			for row in query:
+				data.append(row[1])
+			avgForceMag =  reduce(lambda x, y: x + y, data) / len(data)
+
+			print avgBPM , avgForceMag
+
+			conn.cursor().execute('INSERT INTO '+ DEF_TABLE_NAME_SNAPSHOT_DATA + ' (timeStamp,bpm, forceMag) Values (?,?,?)',(last_30_second_floor,avgBPM,avgForceMag))
+			conn.commit()
+
+			dbFunc.print_table(conn,DEF_TABLE_NAME_SNAPSHOT_DATA)
+
+			conn.close()
+
+			Timer(DEF_SNAPSHOT_DATA_INTERVAL, self.calculate_snapshot_data, () ).start()
+		except KeyboardInterrupt:
+			print ("Shutdown requested...exiting")
+			sys.exit(0)
