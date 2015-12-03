@@ -6,15 +6,14 @@ import serverCtrl
 import serverModl
 
 def main():
-	DatabasePath = 'lifeBandDB.db'
-	ListenIP ='172.17.144.192' # #'172.17.148.20'
-	Port = 5005
-	#receivePort =5005
-	#sendPort = 6006
-	model = serverModl.serverModel(DatabasePath)
-	model.createSensorDatabase()
-	controller = serverCtrl.serverController(DatabasePath,ListenIP,Port,model) #receivePort,sendPort)
-	controller.runServer()
+	databse_path = 'lifeBandDB.db'
+	listen_ip ='0.0.0.0'#'172.17.144.192'
+	listen_port = 5005
+	send_port = 6006
+	model = serverModl.ServerModel(databse_path)
+	model.create_sensor_database()
+	controller = serverCtrl.ServerController(databse_path,listen_ip,listen_port,send_port,model) #receivelisten_port,sendlisten_port)
+	controller.run_server()
 
 
 

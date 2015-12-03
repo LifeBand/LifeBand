@@ -1,42 +1,69 @@
 import unittest
+import time
 import os
 import databaseFunc
 import sqlite3
 
 
 class TestDatabaseFunctions(unittest.TestCase):
+
 	def setUp(self):
+		try:
+		    os.remove(filename)
+		except OSError:
+		    pass
 		self.testDBFile = 'testDB.db'
 		conn = sqlite3.connect(self.testDBFile)
 		self.assertTrue( os.path.isfile(self.testDBFile))
 
-	def testAddTable(self):
-		conn.cursor().execute('CREATE TABLE TestTable(ID INT, STR TEXT)')
-		
+	def test_create_database(self):
+		seed = time.time(self)
+		self.testDBFile = 'testDB'+str(seed)+'.db'
+		conn = sqlite3.connect(self.testDBFile)
+		self.assertTrue( os.path.isfile(self.testDBFile))
+		os.remove(self.testDBFile)
 
 
-def main():
-	conn = sqlite3.connect('ddd.db')
-	cursor = conn.cursor()
-	createTable(conn,'deviceList',devListCols )
-	createTable(conn,'emergList', emergListCols )
-	
-	pulseID = addDevice(conn,'pulse','bpm')
-	accellID = addDevice(conn,'accell','N')
-	respID = addDevice(conn,'resp','mps')
-	printTable(conn,'deviceList')
-	printTable(conn,'emergList')
-	#removeDevice(conn,'accell')
-	#deleteTable(conn,'deviceList')
-	addSensorData(conn,'accell',accellID,{'fx':2,'fy':2,'fz':2,'ax':23.4,'ay':13.4,'az':3.4,})
-	addSensorData(conn,'pulse',pulseID,{'pulse':83.4})
-	addSensorData(conn,'resp',respID,{'resp':18.2})
+	def test_create_table(self):
 
-	printTable(conn,'accellData')
-	printTable(conn,'pulseData')
-	printTable(conn,'respData')
+		create_table(conn,tableName,columns)
 
 
-if __name__ == "__main__":
-	main()
+	def test_delete_table(self,conn,tableName):
 
+	def test_add_emergency_contact_info(self,conn,tableName,data):
+
+		add_emergency_contact_info(conn,tableName,data)
+
+	def test_rem_emergency_contact_info(self):
+		rem_emergency_contact_info(conn,tableName,data)
+
+	def test_get_emergency_contact_info(self):
+		get_emergency_contact_info(conn, tableName)
+
+	def test_add_alarm_data(self):
+		add_alarm_data(conn,tableName,status)
+
+	def create_sensor_data_table(self):
+
+		create_sensor_data_table(conn,devCols)
+
+	def test_add_sensor_data(self):
+		add_sensor_data(conn,tableName, data)
+
+	def test_add_snapshot_data(self):
+
+		add_snapshot_data(conn, tableName, data):
+
+
+	def test_print_table(self):
+		print_table(conn,tableName):
+
+
+	def test_checkForSQLInjection(self):
+
+		checkForSQLInjection(checkString)
+
+
+if __name__ == '__main__':
+    unittest.main(self)

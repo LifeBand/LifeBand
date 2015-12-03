@@ -40,29 +40,32 @@ def main():
 
 	print(	"Sender: "+ str(data_decodded['id']) +
 			"\tName: " + str(data_decodded['data']['name']) +
-			'\taverage HeartRate: ' + str(data_decodded['data']['averageHeartRate'])
+			'\taverage HeartRate: ' + str(data_decodded['data']['min'])
 			)
 
-	data = {'id':'wearable','command':'addSensorData','data':{'bpm':0,'forceMag':0}}
+	data = {'id':'wearable','command':'addSensorData','data':{'timeStamp':time.time(),'bpm':0,'forceMag':0}}
 
 	while True:
 		time.sleep(1)
-		data['data']['pulse'] = random.randint(50,160)
+		data['data']['timeStamp'] = time.time()
+		data['data']['bpm'] = random.randint(50,160)
 		data['data']['forceMag'] = random.randint(0,6)
-		print ( 'Time: '+ str(time.time()) + '\tBPM: '+ str(data['data']['pulse']) + '   \tforceMag: ' + str(data['data']['forceMag']) )
+		print ( 'Time: '+ str(time.time()) + '\tBPM: '+ str(data['data']['bpm']) + '   \tforceMag: ' + str(data['data']['forceMag']) )
 		server.sendto(json.dumps(data),(SERVER_IP,SERVER_PORT))
 
-		if data['data']['forceMag'] >4 and data['data']['pulse'] >130:
+		if data['data']['forceMag'] >4 and data['data']['bpm'] >130:
 			if random.choice([True, False]):
 				server.sendto(json.dumps(
 							{'id':'wearable',
-							'command':'truePositiveAlarm'}
+							'command':'truePositiveAlarm',
+							'data':{'timeStamp':time.time()}}
 							),
 							(SERVER_IP,SERVER_PORT))
 			else:
 				server.sendto(json.dumps(
 							{'id':'wearable',
-							'command':'falsePositiveAlarm'}
+							'command':'falsePositiveAlarm',
+							'data':{'timeStamp':time.time()}}
 							),
 							(SERVER_IP,SERVER_PORT))
 if __name__ == "__main__":

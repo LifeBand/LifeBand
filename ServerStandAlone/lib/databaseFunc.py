@@ -3,92 +3,38 @@ import time
 import datetime
 import uuid
 
-DEF_HALF_HOUR_IN_SECONDS = 60 #3600
-DEF_1_DAY_IN_SECONDS = 86400
-
-devIDCount = 0
 
 
-				
 
-def createTable(conn,tableName,columns):
-	
+
+def create_table(conn,tableName,columns):
+	'''
+	Function: Create a table with the specified name and columns passed in
+	'''
+	checkForSQLInjection(tableName)
+
 	query = 'CREATE TABLE IF NOT EXISTS '+str(tableName)+' ('
+
 	for i in range(0,len(columns)-1):
 		query +=str(columns[i][0])+' ' +str(columns[i][1])+', '
 	query +=str(columns[len(columns)-1][0])+' ' +str(columns[len(columns)-1][1])
 	query +=')'
-	
 	conn.cursor().execute(query)
-	
-
-
-def addEmergContactInfo(conn,tableName,data):
-
-	contactUUID = str(uuid.uuid1()) 
-	conn.cursor().execute('INSERT INTO '+str(tableName)+' (contactID,name,phone,email,twitter) VALUES (?,?,?,?,?)',(contactUUID,data['name'],data['phone'],data['email'],data['twitter']))
-	conn.commit()
-	return contactUUID
-
-def remEmergContactInfo(conn,tableName,data):
-	"""
-	Function: Removes the Emergency contact with the same name passed in data
-	"""
-	conn.cursor().execute('DELETE FROM'+str(tableName)+' WHERE name = \'' + str(data['name'])+'\'')
-	conn.commit()
-
-
-def addAlarmData(conn,tableName,status):
-
-	conn.cursor().execute('INSERT INTO '+str(tableName)+' (timeStamp,status) VALUES (?,?)',(int(time.time()),status))
-	conn.commit()
 
 
 
-def createSensorDataTable(conn,devName,devCols):
-	createTable(conn,devName+'Data',devCols)
-
-def deleteTable(conn,tableName):
+def delete_table(conn,tableName):
+	'''
+	Function: Delete a table with the specified name passed in
+	'''
+	checkForSQLInjection(tableName)
 	conn.cursor().execute('DROP TABLE IF EXISTS '+str(tableName))
 
 
-
-def addDevice(conn,devName,unit,devCols):
-	global devIDCount
-	devUUID =str(uuid.uuid1()) 
-	conn.cursor().execute('INSERT INTO deviceList (DEVID, devName,unit) VALUES (?,?,?)',(devUUID,str(devName),unit))
-	devIDCount+=1
-	conn.commit()
-	createSensorDataTable(conn,str(devName),devCols)
-	return devUUID
-
-def removeDevice(conn,devName,devID):
-	global devIDCount
-	conn.cursor().execute('DELETE FROM deviceList WHERE DEVID = \'' + str(devID)+'\'')
-	conn.cursor().execute('DELETE FROM '+str(devName)+'Data WHERE DEVID = \'' + str(devID)+'\'')
-	devIDCount-=1
-	conn.commit()
-
-def addSensorData(conn,devName,devID,data):
-
-	if devName=='accell':
-		conn.cursor().execute('INSERT INTO '+str(devName)+'Data (DEVID,timeStamp,fx,fy,fz,ax,ay,az) VALUES (?,?,?,?,?,?,?,?)',(devID,int(time.time()),data['fx'],data['fy'],data['fz'],data['ax'],data['ay'],data['az']))
-		conn.commit()
-
-	elif devName == 'pulse':
-		conn.cursor().execute('INSERT INTO '+str(devName)+'Data (DEVID,timeStamp,pulse) VALUES (?,?,?)',(devID,int(time.time()),data['pulse']))
-		conn.commit()
-
-	elif devName == 'resp':
-		conn.cursor().execute('INSERT INTO '+str(devName)+'Data (DEVID,timeStamp,resp) VALUES (?,?,?)',(devID,int(time.time()),data['resp']))
-		conn.commit()
-
-	
-def addSnapshotData(conn,tableName, data):
-	conn.cursor().execute('INSERT INTO '+str(timeScale)+'Data (timeStamp,heartBeat, breatheRate) Values (?,?,?)',(time.time()-(time.time()%DEF_HALF_HOUR_IN_SECONDS),data['heartBeat'],data['breatheRate']))
-	conn.commit()
-	
-def printTable(conn,tableName):
+def print_table(conn,tableName):
+	'''
+	Function: Print the table in the database with column names
+	'''
 	print'\n-------------------------\nPrinting Table ',tableName
 	cursor = conn.execute('SELECT * from '+str(tableName))
 	colNames = [description[0] for description in cursor.description]
@@ -97,3 +43,14 @@ def printTable(conn,tableName):
 	table = conn.cursor().execute('SELECT * FROM '+str(tableName))
 	for row in table:
 		print row
+
+
+
+def checkForSQLInjection(checkString):
+	'''
+	Function: Check if the the input string has any malicious code injections
+	'''
+	assert('\'' not in checkString)
+	assert(';' not in checkString)
+	assert('AND' not in checkString)
+	assert('OR' not in checkString)
