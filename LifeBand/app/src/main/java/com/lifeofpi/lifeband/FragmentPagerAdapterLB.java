@@ -10,8 +10,8 @@ import android.support.v4.app.FragmentPagerAdapter;
  * Created by dominikschmidtlein on 11/4/2015.
  */
 public class FragmentPagerAdapterLB extends FragmentPagerAdapter {
-    public static final int PAGE_COUNT = 4;
-    private String tabTitles[] = new String[] { OverviewPageFragment.NAME, HeartbeatPageFragment.NAME, RespirationPageFragment.NAME, AccelerationPageFragment.NAME };
+    public static final int PAGE_COUNT = 3;
+    private String tabTitles[] = new String[] { OverviewPageFragment.NAME, HeartbeatPageFragment.NAME, AccelerationPageFragment.NAME };
     private Context context;
 
     public FragmentPagerAdapterLB(FragmentManager fm, Context context) {
@@ -32,8 +32,6 @@ public class FragmentPagerAdapterLB extends FragmentPagerAdapter {
             case 1:
                 return HeartbeatPageFragment.newInstance(position + 1);
             case 2:
-                return RespirationPageFragment.newInstance(position + 1);
-            case 3:
                 return AccelerationPageFragment.newInstance(position + 1);
             default:
                 return OverviewPageFragment.newInstance(position + 1);

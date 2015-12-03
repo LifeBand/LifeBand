@@ -5,10 +5,15 @@
         android:key="connection_category_key"
         android:title="Connection Settings">
         <EditTextPreference
-            android:defaultValue="@string/port_default"
+            android:defaultValue="@string/send_port_default"
             android:inputType="number"
-            android:key="@string/port_key"
-            android:title="@string/port_title" />
+            android:key="@string/send_port_key"
+            android:title="@string/send_port_title" />
+        <EditTextPreference
+            android:defaultValue="@string/receive_port_default"
+            android:inputType="number"
+            android:key="@string/receive_port_key"
+            android:title="@string/receive_port_title" />
         <EditTextPreference
             android:defaultValue="@string/ip_default"
             android:key="@string/ip_key"

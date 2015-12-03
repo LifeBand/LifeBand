@@ -17,7 +17,6 @@ public class UDPHelper {
 
     public static final String PROTOCOL_DATA_KEY = "data";
     public static final String PROTOCOL_PULSE_KEY = "pulse";
-    public static final String PROTOCOL_RESP_KEY = "resp";
     public static final String PROTOCOL_ACC_KEY = "accell";
 
     public static final String SEND_FAILED = "Send Failed";
@@ -26,12 +25,15 @@ public class UDPHelper {
     public static final String DATA_INVALID = "Data Invalid";
     public static final String ERROR_KEY = "error";
 
+    public static final int NUMBER_OF_DATA_POINTS = 50;
+
     public final JSONObject getLatestDataJSON = new JSONObject();
 
     public UDPHelper(){
         try {
             getLatestDataJSON.put("id", "phone");
-            getLatestDataJSON.put("command", "getLatestData");
+            getLatestDataJSON.put("command", "getPastDataSet");
+            getLatestDataJSON.put(PROTOCOL_DATA_KEY,"{numpoints:" + NUMBER_OF_DATA_POINTS + "}");
         }catch (Exception e){}
     }
 
@@ -40,7 +42,7 @@ public class UDPHelper {
             InetAddress address = InetAddress.getByName(ip);
             byte[] sendData = data.toString().getBytes();
             DatagramSocket socket = new DatagramSocket();
-            DatagramPacket packet = new DatagramPacket(sendData, sendData.length, address, port);
+            DatagramPacket packet = new DatagramPacket(sendData, sendData.length, address, 5005);
             socket.send(packet);
             socket.close();
             return true;
@@ -53,7 +55,7 @@ public class UDPHelper {
         DatagramSocket socket = null;
         try {
             byte[] receiveData = new byte[1024];
-            socket = new DatagramSocket(port);
+            socket = new DatagramSocket(6006);
             socket.setSoTimeout(time);
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
             socket.receive(receivePacket);

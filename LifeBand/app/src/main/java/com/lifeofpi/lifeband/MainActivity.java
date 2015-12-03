@@ -14,13 +14,22 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.jjoe64.graphview.series.DataPoint;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Iterator;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -31,16 +40,20 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = "LifeBand";
     public int notificationId;
 
+    private LifeBandModel lifeBandModel;
+
     private ViewPager viewPager;
     private TabLayout tabLayout;
     private Toolbar toolbar;
     public SharedPreferences sharedPreferences;
-    private BroadcastReceiver mBroadcastReceiver;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        lifeBandModel = new LifeBandModel();
 
         toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -76,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        mBroadcastReceiver = new BroadcastReceiver() {
+        /*mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 boolean sentToken = sharedPreferences.getBoolean(SENT_TOKEN_TO_SERVER, false);
@@ -87,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         Intent intent = new Intent(this, RegistrationIntentService.class);
-        startService(intent);
+        startService(intent);*/
     }
 
     @Override
@@ -113,19 +126,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver,
-                new IntentFilter(REGISTRATION_COMPLETE));
-    }
+    /*The method calls a series of function which request new data, receive the data, check the
+    * data, and if it is ok, then the new data is displayed in the ui thread. The method catches
+    * errors that were not screened by checkJSONData() and displays a DATA_INVALID message.*/
 
-    @Override
-    protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
-        super.onPause();
-
-    }
 
     public void displayToast(final String text, final int duration){
         runOnUiThread(new Runnable() {
@@ -135,4 +139,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    public LifeBandModel getLifeBandModel() {
+        return lifeBandModel;
+    }
+
 }
