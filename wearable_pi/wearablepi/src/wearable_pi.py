@@ -81,6 +81,8 @@ def BPM_reader_thread(beat_times):
 	    thread_sync (READ_THREAD,SEND_THREAD)
             beat_times.append(time.time())
             beat_times_length+=1;
+            if(beat_times_length>SAMPLE_PERIOD_IN_SEC):
+                beat_times_length = SAMPLE_PERIOD_IN_SEC
             flag[READ_THREAD] = False
             time.sleep(min_seconds_per_beat)
 
@@ -97,7 +99,7 @@ def calculate_average_bpm(beat_times):
     ref_time = time.time()
     thread_sync (SEND_THREAD,READ_THREAD)
     remove_from_pulse (beat_times,ref_time,old_beat_times)
-    length = len(beat_times)
+    length = beat_times_length
     flag[SEND_THREAD] = False
     if length == 0:
         return 0
@@ -145,7 +147,7 @@ def get_axes():
         adxl345 = ADXL345()
         magnitude = get_magnitude_dict(read_acceleration_to_dict(adxl345))
         if check_magnitude(magnitude):
-            send_message('truePositiveAlarm', {'time':time.time()})
+            send_message('truePositiveAlarm', {'timeStamp':time.time()})
             alarm = True
             
 #starts the accelerometer thread
@@ -168,8 +170,8 @@ def acceloremetor_thread():
             check_button()
  
 def check_GBPM (max_magnitude):
-    if (GBPM != None):
-        send_message('addSensorData',{'forceMag':max_magnitude,'bpm':GBP, 'time':time.time()})
+    if (GBPM is not None):
+        send_message('addSensorData',{'forceMag':max_magnitude,'bpm':GBPM, 'timeStamp':time.time()})
         
 
             
