@@ -36,6 +36,7 @@ turn = READ_THREAD
 
 MAGNITUDE_THRESHOLD = 2.5
 PERIOD_BETWEEN_SAMPLES = 0.01
+beat_times_length = 0
 
 #global variables to access the pulse and the max magnitude together 
 GBPM = int()
@@ -79,6 +80,7 @@ def BPM_reader_thread(beat_times):
         if voltage > THRESHOLD:
 	    thread_sync (READ_THREAD,SEND_THREAD)
             beat_times.append(time.time())
+            beat_times_length+=1;
             flag[READ_THREAD] = False
             time.sleep(min_seconds_per_beat)
 
@@ -105,7 +107,7 @@ def calculate_average_bpm(beat_times):
         return length*SECONDS_PER_MIN/(beat_times[length - 1] - beat_times[0])
 
 def check_for_time(beat_times):
-    length = len (beat_times)
+    length = beat_times_length #len (beat_times)
     if (time.time()- beat_times[length-1]) > 3:
         send_message('truePositiveAlarm', {'time':time.time()})
         alarm = True
