@@ -16,7 +16,7 @@ DEF_TABLE_NAME_ALARM = 'alarmList'
 DEF_TABLE_NAME_SENSOR_DATA = 'sensorData'
 DEF_TABLE_NAME_SNAPSHOT_DATA = 'snapshotData'
 DEF_SNAPSHOT_DATA_INTERVAL = DEF_HALF_MINUTE_IN_SECONDS
-
+DEF_WEARABLE_ID = '1'
 
 DEF_TABLE_COLS_EMERG = [
 					['DEVID','TEXT'],
@@ -163,7 +163,11 @@ class ServerModel():
 				conn.cursor().execute('INSERT INTO '+
 						str(DEF_TABLE_NAME_EMERG)+
 						' (contactID,name,phone,email) VALUES (?,?,?,?,?)',
-						(self.contactID,data['name'],float(data['phone']),data['email']))
+						(DEF_WEARABLE_ID,
+						self.contactID,
+						emerg_contact_data['name'],
+						int(emerg_contact_data['phone']),
+						emerg_contact_data['email']))
 				conn.commit()
 				self.contactID+= 1
 
@@ -196,7 +200,7 @@ class ServerModel():
 			dbFunc.checkForSQLInjection(str(sensor_data['forceMag']))
 
 			conn.cursor().execute('INSERT INTO '+str(DEF_TABLE_NAME_SENSOR_DATA)+'(DEVID,timeStamp,bpm,forceMag) VALUES (?,?,?,?)',
-					('1',
+					(DEF_WEARABLE_ID,
 					float(sensor_data['timeStamp']),
 					float(sensor_data['bpm']),
 					float(sensor_data['forceMag'])) )
