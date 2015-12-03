@@ -105,14 +105,12 @@ def remove_from_pulse (beat_times,ref_time,old_beat_times):
 def start_threads():
     BPM_reader = threading.Thread(target = BPM_reader_thread, args=(beat_times,))
     BPM_sender = threading.Thread(target=BPM_sender_thread, args=(beat_times,))
-    accelerometer = threading.Thread(target= acceloremetor_thread)
+    #accelerometer = threading.Thread(target= acceloremetor_thread)
     threads.append(BPM_reader)
     threads.append(BPM_sender)
-    threads.append(accelerometer)
+    #threads.append(accelerometer)
     BPM_reader.start()
     BPM_sender.start()
-    accelerometer.start()
-    
     
 threads = [] 
 if __name__ == "__main__":
