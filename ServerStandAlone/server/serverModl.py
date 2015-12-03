@@ -162,7 +162,7 @@ class ServerModel():
 
 				conn.cursor().execute('INSERT INTO '+
 						str(DEF_TABLE_NAME_EMERG)+
-						' (contactID,name,phone,email) VALUES (?,?,?,?,?)',
+						' (DEVID,contactID,name,phone,email) VALUES (?,?,?,?,?)',
 						(DEF_WEARABLE_ID,
 						self.contactID,
 						emerg_contact_data['name'],
@@ -186,7 +186,10 @@ class ServerModel():
 		Function: Gets all Emergency contact with the same name passed in data
 		"""
 		conn = sqlite3.connect(self.db_path)
-		response = conn.cursor().execute('SELECT name,phone,email FROM '+str(tableName)).fetchall();
+		response = conn.cursor().execute('SELECT name,phone,email FROM '+
+				str(tableName)+ 'WHERE DEVID = \''+
+				str(DEF_WEARABLE_ID)+
+				'\'').fetchall();
 		conn.close()
 		return {'id':'server','command':'putEmergencyContact','data':response}
 
