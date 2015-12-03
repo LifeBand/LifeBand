@@ -8,10 +8,10 @@ import threading
 #import RPi.GPIO as GPIO
 #from math import sqrt
 
-__author__ = "Amr Gawish"
+__author__ = "A=mr Gawish"
 __date__ = "$3-Dec-2015 1:21:56 AM$"
 
-
+# constant for the pulse sensor
 READ_THREAD = 0
 SEND_THREAD = 1
 
