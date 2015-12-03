@@ -21,8 +21,9 @@ SECONDS_PER_MIN = 60
 THRESHOLD = 0.65
 
 SERVER_IP = '192.168.0.104'
-SERVER_PORT = '5005'
-MY_PORT = '6006'
+MY_IP = "0.0.0.0"
+SERVER_PORT = 5005
+MY_PORT = 6006
 
 CONN_MAX_SPEED_HZ = 1200000
 CONN_MODE = 0
@@ -105,7 +106,7 @@ def calculate_average_bpm(beat_times):
 
 def check_for_time(beat_times):
     length = len (beat_times)
-    if (time.time()-beat_times[length]) > 3:
+    if (time.time()- beat_times[length-1]) > 3:
         send_message('truePositiveAlarm', {'time':time.time()})
         alarm = True
         
@@ -141,7 +142,6 @@ def send_alarm():
 def get_axes():  
         adxl345 = ADXL345()
         magnitude = get_magnitude_dict(read_acceleration_to_dict(adxl345))
-        send_magnitude(magnitude)
         if check_magnitude(magnitude):
             send_message('truePositiveAlarm', {'time':time.time()})
             alarm = True
