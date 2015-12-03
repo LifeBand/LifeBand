@@ -56,7 +56,7 @@ def BPM_sender_thread(beat_times):
     
 def BPM_reader_thread(beat_times):
     while True:
-        check_for_time(beat_times)
+        #check_for_time(beat_times)
         voltage = read_pulse()
         if voltage > THRESHOLD:
 	    thread_sync (READ_THREAD,SEND_THREAD)
@@ -84,7 +84,7 @@ def calculate_average_bpm(beat_times):
     ref_time = time.time()
     thread_sync (SEND_THREAD,READ_THREAD)
     remove_from_pulse (beat_times,ref_time,old_beat_times)
-    length = beat_times_length
+    length = len (beat_times)
     flag[SEND_THREAD] = False
     if length == 0:
         return 0
