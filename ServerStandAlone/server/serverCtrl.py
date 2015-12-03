@@ -85,8 +85,6 @@ class ServerController():
 		"""
 
 
-		data_decoded = json.loads(received_data)
-
 		if data_decoded['id'] == "phone":
 			print (str(time.ctime())+"Phone data Received from "+str(received_ip))
 			self.phone_network_handler(conn,received_data,(received_ip,received_port))
@@ -99,6 +97,9 @@ class ServerController():
 
 
 	def phone_network_handler(self,conn,received_data,(received_ip,received_port)):
+
+		data_decoded = json.loads(received_data)
+
 		if data_decoded['command'] == 'getPastDataSet':
 			print ('\t'+"Sending past Pulse Data")
 			conn.sendto(
@@ -142,6 +143,8 @@ class ServerController():
 
 
 	def wearable_network_handler(self,conn,received_data,(received_ip,received_port)):
+		data_decoded = json.loads(received_data)
+
 		if data_decoded['command'] == 'addSensorData':
 			print ('\t'+"Adding pulse data to database")
 			self.DEF_MODEL.add_sensor_data_to_db(
@@ -233,7 +236,7 @@ class ServerController():
 
 			self.DEF_MODEL.start_snpashot_routine()
 			self.DEF_MODEL.change_emerg_contact_in_db('add',{'name':'Irusha','phone':8002394231,'email':'irusha.dilshan@gmail.com'})
-			
+
 			while True:
 
 				#Accept each communication
