@@ -88,10 +88,10 @@ def calculate_average_bpm(beat_times):
     flag[SEND_THREAD] = False
     if length == 0:
         return 0
-    if length == 1:
-        return length*SECONDS_PER_MIN/ beat_times[0]
-    else:
-        return length*SECONDS_PER_MIN/(beat_times[length - 1] - beat_times[0])
+    #if length == 1:
+     #   return length*SECONDS_PER_MIN/ beat_times[0]
+    #else:
+    return length*SECONDS_PER_MIN/(beat_times[length - 1] - beat_times[0])
 
 def remove_from_pulse (beat_times,ref_time,old_beat_times):
     for b_time in beat_times:
