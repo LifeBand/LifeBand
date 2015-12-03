@@ -16,10 +16,10 @@ DEF_TABLE_NAME_ALARM = 'alarmList'
 DEF_TABLE_NAME_SENSOR_DATA = 'sensorData'
 DEF_TABLE_NAME_SNAPSHOT_DATA = 'snapshotData'
 DEF_SNAPSHOT_DATA_INTERVAL = DEF_HALF_MINUTE_IN_SECONDS
-DEF_WEARABLE_ID = '1'
+DEF_WEARABLE_ID = 1
 
 DEF_TABLE_COLS_EMERG = [
-					['DEVID','TEXT'],
+					['DEVID','INT'],
 					['contactID','TEXT'] ,
 					['name', 'TEXT'] ,
 					['phone', 'INT'] ,
@@ -28,7 +28,7 @@ DEF_TABLE_COLS_EMERG = [
 
 
 DEF_TABLE_COLS_DEVICES = 	[
-					['DEVID','TEXT'] ,
+					['DEVID','INT'] ,
 					['devName', 'TEXT'] ,
 					['sampRate', 'INT'] ,
 					['unit','TEXT']
@@ -46,7 +46,7 @@ DEF_TABLE_COLS_SNAPSHOT_DATA= [
 					['forceMag', 'REAL']
 				]
 DEF_TABLE_COLS_SENSOR_DATA = [
-					['DEVID','TEXT'] ,
+					['DEVID','INT'] ,
 					['timeStamp', 'REAL'] ,
 					['bpm', 'REAL'] ,
 					['forceMag','REAL']
@@ -186,10 +186,8 @@ class ServerModel():
 		Function: Gets all Emergency contact with the same name passed in data
 		"""
 		conn = sqlite3.connect(self.db_path)
-		response = conn.cursor().execute('SELECT name,phone,email FROM '+
-				str(tableName)+ 'WHERE DEVID = \''+
-				str(DEF_WEARABLE_ID)+
-				'\'').fetchall();
+		response = conn.cursor().execute('SELECT DISTINCT name,phone,email FROM '+
+				str(DEF_TABLE_NAME_EMERG)+ ' WHERE DEVID = 1' ).fetchall();
 		conn.close()
 		return {'id':'server','command':'putEmergencyContact','data':response}
 
@@ -224,7 +222,7 @@ class ServerModel():
 			print ("Error: add_alarm_to_db: Input parameter not string"+ sys.exc_info()[0])
 			raise
 
-	def get_patient_info_from_db(self, patient_data):
+	def get_patient_info_from_db(self):
 		try:
 			#conn = sqlite3.connect(self.db_path)
 			#data = get_emergency_contact_info(conn, tableName)
@@ -249,8 +247,20 @@ class ServerModel():
 	#	return response
 
 	def start_snpashot_routine(self):
-		Timer(DEF_SNAPSHOT_DATA_INTERVAL, self.calculate_snapshot_data, () ).start()
-		Timer(DEF_1_DAY_IN_SECONDS, self.remove_older_sensor_data, () ).start()
+		self.wait_priodic_thread(1,0,DEF_SNAPSHOT_DATA_INTERVAL,self.calculate_snapshot_data)
+		self.wait_priodic_thread(1,0,DEF_1_DAY_IN_SECONDS,self.remove_older_sensor_data)
+
+
+		#Timer(DEF_SNAPSHOT_DATA_INTERVAL, self.calculate_snapshot_data, () ).start()
+		#Timer(DEF_1_DAY_IN_SECONDS, self.remove_older_sensor_data, () ).start()
+
+	def wait_priodic_thread(self,interval,accu,total,subroutine):
+		if accu >= total:
+			subroutine()
+		else:
+			accu +=interval
+			Timer(interval,self.wait_priodic_thread, (interval,accu,total,subroutine)).start()
+
 
 	def remove_older_sensor_data(self):
 		try:
@@ -259,7 +269,8 @@ class ServerModel():
 			conn.cursor().execute('DELETE FROM '+DEF_TABLE_NAME_SENSOR_DATA+' WHERE timeStamp < '+ str(time.time() - DEF_1_DAY_IN_SECONDS*2) )
 			conn.commit()
 			conn.close()
-			Timer(DEF_1_DAY_IN_SECONDS, self.remove_older_sensor_data, () ).start()
+			self.wait_priodic_thread(1,0,DEF_1_DAY_IN_SECONDS,self.remove_older_sensor_data)
+			#Timer(DEF_1_DAY_IN_SECONDS, self.remove_older_sensor_data, () ).start()
 		except KeyboardInterrupt:
 			print ("Shutdown requested...exiting")
 			sys.exit(0)
@@ -287,11 +298,11 @@ class ServerModel():
 				conn.cursor().execute('INSERT INTO '+ DEF_TABLE_NAME_SNAPSHOT_DATA + ' (timeStamp,bpm, forceMag) Values (?,?,?)',(last_30_second_floor,avgBPM,avgForceMag))
 				conn.commit()
 
-				dbFunc.print_table(conn,DEF_TABLE_NAME_SNAPSHOT_DATA)
+				#dbFunc.print_table(conn,DEF_TABLE_NAME_SNAPSHOT_DATA)
 
 				conn.close()
-
-			Timer(DEF_SNAPSHOT_DATA_INTERVAL, self.calculate_snapshot_data, () ).start()
+			self.wait_priodic_thread(1,0,DEF_SNAPSHOT_DATA_INTERVAL,self.calculate_snapshot_data)
+			#Timer(DEF_SNAPSHOT_DATA_INTERVAL, self.calculate_snapshot_data, () ).start()
 		except KeyboardInterrupt:
 			print ("Shutdown requested...exiting")
 			sys.exit(0)

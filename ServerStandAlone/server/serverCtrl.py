@@ -83,22 +83,21 @@ class ServerController():
 		args[0] : data that is contained in UDP packets
 		args[1] : Address from the connection
 		"""
-
+		data_decoded = json.loads(received_data)
 
 		if data_decoded['id'] == "phone":
 			print (str(time.ctime())+"Phone data Received from "+str(received_ip))
-			self.phone_network_handler(conn,received_data,(received_ip,received_port))
+			self.phone_network_handler(conn,received_data,data_decoded,(received_ip,received_port))
 
 		elif data_decoded['id'] == "wearable":
 			print (str(time.ctime())+"Wearable data Received from "+str(received_ip))
-			self.wearable_network_handler(conn,received_data,(received_ip,received_port))
+			self.wearable_network_handler(conn,received_data,data_decoded,(received_ip,received_port))
 		else:
 			print('ERROR:Message from unknown sender')
 
 
-	def phone_network_handler(self,conn,received_data,(received_ip,received_port)):
+	def phone_network_handler(self,conn,received_data,data_decoded,(received_ip,received_port)):
 
-		data_decoded = json.loads(received_data)
 
 		if data_decoded['command'] == 'getPastDataSet':
 			print ('\t'+"Sending past Pulse Data")
@@ -142,8 +141,7 @@ class ServerController():
 
 
 
-	def wearable_network_handler(self,conn,received_data,(received_ip,received_port)):
-		data_decoded = json.loads(received_data)
+	def wearable_network_handler(self,conn,received_data,data_decoded,(received_ip,received_port)):
 
 		if data_decoded['command'] == 'addSensorData':
 			print ('\t'+"Adding pulse data to database")
@@ -161,9 +159,10 @@ class ServerController():
 
 			self.send_alert_phone()
 			emergency_contact_data = self.DEF_MODEL.get_emerg_contact_from_db()['data']
-
+			latest_data = self.DEF_MODEL.get_latest_data_from_db()['data']
+			print (emergency_contact_data)
 			for contact in emergency_contact_data:
-				self.send_alert_email(emergency_contact_data[index])
+				self.send_alert_email(conn,contact,latest_data)
 
 		elif data_decoded['command'] == 'falsePositiveAlarm':
 			print ('\t'+"Adding False Positive Alarm to database")
@@ -173,9 +172,7 @@ class ServerController():
 		elif data_decoded['command'] == 'getPatientInfo':
 			print ('\t'+"Sending Patient Info from database")
 			conn.sendto(
-					json.dumps(self.DEF_MODEL.get_patient_info_from_db(
-							data_decoded['data'])
-							),
+					json.dumps(self.DEF_MODEL.get_patient_info_from_db()),
 					(received_ip,self.DEF_SEND_PORT))
 
 		else:
@@ -207,12 +204,10 @@ class ServerController():
 				'Dear '+contact_data[0]+
 				'\r\n LifeBand is measuring alarming biometrics.'+
 				' Please check on your Patient\r\n\n'+
-				'Patient: '+
-				str(self.DEF_MODEL.get_patient_info_from_db()['data']['name'])+
-				' IS AT RISK. BPM: '+
-				str(self.DEF_MODEL.get_latest_data_from_db()['data']['bpm'])+
+				'BPM: '+
+				str(latest_data['bpm'])+
 				' Force felt: '+
-				str(self.DEF_MODEL.get_latest_data_from_db()['data']['forceMag'])+
+				str(latest_data['forceMag'])+
 				'\r\n\nThis message is automatically created by LifeBand')
 
 		emailAPI.SendMessage(service, 'me', message)
@@ -250,9 +245,7 @@ class ServerController():
 			server.close()
 
 	def send_alert_phone(self):
-		self.sendNotification('ALERT for Patient: '+
-				str(self.DEF_MODEL.get_patient_info_from_db()['data']['name'])+
-				' IS AT RISK. BPM: '+
+		self.sendNotification('ALERT: Patient is at risk: BPM: '+
 				str(self.DEF_MODEL.get_latest_data_from_db()['data']['bpm'])+
 				' Force felt: '+
 				str(self.DEF_MODEL.get_latest_data_from_db()['data']['forceMag'])
