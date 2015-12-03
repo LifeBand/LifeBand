@@ -110,6 +110,8 @@ def calculate_average_bpm(beat_times):
 
 def check_for_time(beat_times):
     length = beat_times_length #len (beat_times)
+    if len(beat_times)==0:
+        return
     if (time.time()- beat_times[length-1]) > 3:
         send_message('truePositiveAlarm', {'time':time.time()})
         alarm = True
@@ -214,6 +216,8 @@ threads = []
 if __name__ == "__main__": 
     beat_times = []
     alarm = False
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(17, GPIO.IN)
     rcvSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     rcvSock.bind((MY_IP,MY_PORT))
     sendingSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
