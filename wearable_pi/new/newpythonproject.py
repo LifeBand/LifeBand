@@ -52,11 +52,10 @@ def read_pulse (adc_channel=0 , spi_channel=0):
 def BPM_sender_thread(beat_times):
     while(True):
         time.sleep(SECONDS_PER_SEND)
-        save(calculate_average_bpm(beat_times))
+        send_BPM_data(calculate_average_bpm(beat_times))
     
 def BPM_reader_thread(beat_times):
     while True:
-        #check_for_time(beat_times)
         voltage = read_pulse()
         if voltage > THRESHOLD:
 	    thread_sync (READ_THREAD,SEND_THREAD)
@@ -65,14 +64,20 @@ def BPM_reader_thread(beat_times):
 
             flag[READ_THREAD] = False
             time.sleep(min_seconds_per_beat)
+        else:
+            if (time.time() - beat_times[len(beat_times)-1]) > 3:
+                send_BPM_alarm ()
             
-def save(BPM):
+def send_BPM_data(BPM):
     print BPM
     #global GBPM
     #GBPM = BPM
     #print "BPM"
     #print BPM
 
+def send_BPM_alarm ():
+    print "ALARMMMMMMMMMMMMMMMMMMMMMMMMM"
+    
 def thread_sync (thread1,thread2):
     flag[thread1] = True
     turn = thread2
@@ -89,7 +94,7 @@ def calculate_average_bpm(beat_times):
     if length == 0:
         return 0
     if length == 1:
-       return length*SECONDS_PER_MIN/ beat_times[0]
+       return SECONDS_PER_MIN/ beat_times[0]
     else:
         return length*SECONDS_PER_MIN/(beat_times[length - 1] - beat_times[0])
 
