@@ -86,7 +86,7 @@ def BPM_reader_thread(beat_times):
             alarm_flag = 0
             time.sleep(min_seconds_per_beat)
         else: 
-            if len(beat_times) >= 1:
+            if len(beat_times) > 1:
                 #print len(beat_times)
                 if (time.time() - beat_times[len(beat_times)-1]) > TIME_NO_BEATS:
                     if alarm_flag is 0 :
@@ -114,7 +114,6 @@ def calculate_average_bpm(beat_times):
         return length*SECONDS_PER_MIN/(beat_times[length - 1] - beat_times[0])
 
 def remove_from_pulse (beat_times,ref_time,old_beat_times):
-    if len(beat_times) >= 2:
         for b_time in beat_times:
             if(abs(ref_time - b_time) > SAMPLE_PERIOD_IN_SEC):
                 old_beat_times.append(b_time)
