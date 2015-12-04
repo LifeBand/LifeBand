@@ -73,6 +73,7 @@ def BPM_reader_thread(beat_times):
             if len(beat_times) >= 1:
                 if (time.time() - beat_times[len(beat_times)-1]) > 3:
                     send_BPM_alarm ()
+                    time.sleep(2)
 
 def thread_sync (thread1,thread2):
     flag[thread1] = True
