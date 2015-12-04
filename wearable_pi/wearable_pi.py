@@ -12,6 +12,7 @@ READ_THREAD = 0
 SEND_THREAD = 1
 
 SAMPLE_PERIOD_IN_SEC = 30
+TIME_NO_BEATS = 3
 SECONDS_PER_SEND = 1
 HUMAN_BPM_LIMIT = 150
 SECONDS_PER_MIN = 60
@@ -73,7 +74,8 @@ def BPM_reader_thread(beat_times):
             time.sleep(min_seconds_per_beat)
         else:
             if len(beat_times) >= 1:
-                if (time.time() - beat_times[len(beat_times)-1]) > 3:
+                print len(beat_times)
+                if (time.time() - beat_times[len(beat_times)-1]) > TIME_NO_BEATS:
                     if alarm_flag is 0 :
                         send_BPM_alarm ()
                         alarm_flag = 1
