@@ -9,6 +9,7 @@ import com.jjoe64.graphview.series.DataPoint;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Date;
 import java.util.Iterator;
 
 /**
@@ -45,7 +46,7 @@ public class LifeBandRefresher implements Runnable {
 
     /*The method sends a get latest data request to the server. If the send is unsuccessful
     * because of no internet access, an error message is temporarily displayed on screen. The
-    * contents of the message are defined by LifeBand's data transfer protocol*/
+    * contents of the message are defined by LifeBand's data transzaZfer protocol*/
     private boolean requestRefreshData(){
         JSONObject latestDataJSON = udpHelper.getLatestDataJSON;
         boolean send = udpHelper.sendUDP(latestDataJSON);
@@ -75,8 +76,13 @@ public class LifeBandRefresher implements Runnable {
 
     private void unpackJSON(JSONObject jsonData){
         try {
-            Log.d(MainActivity.TAG, jsonData.toString());
+
+            JSONObject latest = jsonData.getJSONObject("latest");
+            mainActivity.getLifeBandModel().setLatestHeartbeat(latest.getDouble("bpm"));
+            mainActivity.getLifeBandModel().setLatestAcceleration(latest.getDouble("forceMag"));
+
             JSONObject dataDict = jsonData.getJSONObject(UDPHelper.PROTOCOL_DATA_KEY);
+
             Iterator iterator = dataDict.keys();
 
             DataPoint[] heartbeats = new DataPoint[dataDict.length()];
@@ -87,12 +93,18 @@ public class LifeBandRefresher implements Runnable {
                 String keyTimeStamp = (String) iterator.next();
                 JSONArray bpmForceArray = dataDict.getJSONArray(keyTimeStamp);
 
-                Log.d(MainActivity.TAG, "key: " + keyTimeStamp + ", value: " + bpmForceArray);
+                Date date = new Date((long) Double.parseDouble(keyTimeStamp));
+                int minutes = date.getMinutes();
 
-                heartbeats[index] = new DataPoint(Double.parseDouble(keyTimeStamp), bpmForceArray.getDouble(0));
-                accelerations[index] = new DataPoint(Double.parseDouble(keyTimeStamp), bpmForceArray.getDouble(1));
+
+//                heartbeats[index] = new DataPoint(Double.parseDouble(Time.keyTimeStamp), bpmForceArray.getDouble(0));
+//                accelerations[index] = new DataPoint(Double.parseDouble(keyTimeStamp), bpmForceArray.getDouble(1));
+
+                heartbeats[index] = new DataPoint(minutes, bpmForceArray.getDouble(0));
+                accelerations[index] = new DataPoint(minutes, bpmForceArray.getDouble(1));
+
             }
-            Log.d(MainActivity.TAG, heartbeats.toString());
+            Log.d(MainActivity.TAG, heartbeats.length + "");
             mainActivity.getLifeBandModel().setHeartbeats(heartbeats);
             mainActivity.getLifeBandModel().setAccelerations(accelerations);
         } catch (Exception e) {

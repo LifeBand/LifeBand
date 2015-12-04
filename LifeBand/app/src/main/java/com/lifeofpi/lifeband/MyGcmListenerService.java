@@ -42,7 +42,7 @@ public class MyGcmListenerService extends GcmListenerService {
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Abnormalities Detected in Pulse")
+                .setContentTitle(MainActivity.TAG)
                 .setContentText(body)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
