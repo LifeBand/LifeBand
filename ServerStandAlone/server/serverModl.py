@@ -12,7 +12,7 @@ from collections import defaultdict
 
 """Dictionaries for established database structure"""
 DEF_HALF_MINUTE_IN_SECONDS = 30 #1800
-DEF_1_DAY_IN_SECONDS = 60
+DEF_1_DAY_IN_SECONDS = 86400
 DEF_TABLE_NAME_EMERG = 'emergList'
 DEF_TABLE_NAME_ALARM = 'alarmList'
 DEF_TABLE_NAME_SENLIST = 'senList'
@@ -132,6 +132,7 @@ class ServerModel():
 
 
 		if query_data is not None:
+			#if query_data[0][0] == 0 :
 			response['data']['bpm'] = query_data[0][0]
 			response['data']['forceMag'] = query_data[1][0]
 		return response
@@ -156,7 +157,7 @@ class ServerModel():
 		for row in query_data:
 			#print row[1]
 			response_data[str(row[0])] = [row[1],row[2]]
-		print response_data
+		#print response_data
 		response =  {'id':'server','command':'putLatestData','data':response_data,'latest':self.get_latest_data_from_db()['data']}
 		return response
 
