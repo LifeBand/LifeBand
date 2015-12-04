@@ -64,6 +64,7 @@ def send_BPM_data(BPM):
     sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
 
 def send_BPM_alarm ():
+    print "ALAAAAAAAAAAARRRRRRRRRRRRRMMMMMMMMMMMM"
     message['id'] = 'wearable'
     message['command'] = 'truePositiveAlarm'
     message['data'] = {'timeStamp': time.time()}
