@@ -93,7 +93,8 @@ def BPM_reader_thread(beat_times):
                         send_alarm ()
                         alarm_flag = 1
             except:
-                print "index is zero so not today come back later"
+                pass
+               # print "index is zero so not today come back later"
                 
 def thread_sync (thread1,thread2):
     flag[thread1] = True
