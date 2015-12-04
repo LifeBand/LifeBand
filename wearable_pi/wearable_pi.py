@@ -66,10 +66,11 @@ def BPM_reader_thread(beat_times):
     alarm_flag = 0
     while True:
         voltage = read_pulse()
+        thread_sync (READ_THREAD,SEND_THREAD)
         if voltage > THRESHOLD:
-            thread_sync (READ_THREAD,SEND_THREAD)
+            #thread_sync (READ_THREAD,SEND_THREAD)
             beat_times.append(time.time())
-            flag[READ_THREAD] = False
+            #flag[READ_THREAD] = False
             alarm_flag = 0
             time.sleep(min_seconds_per_beat)
         else:
@@ -79,7 +80,7 @@ def BPM_reader_thread(beat_times):
                     if alarm_flag is 0 :
                         send_BPM_alarm ()
                         alarm_flag = 1
-
+        flag[READ_THREAD] = False
 def thread_sync (thread1,thread2):
     flag[thread1] = True
     turn = thread2
