@@ -111,7 +111,7 @@ def get_magnitude_dict(axes):
 def read_acceleration_to_dict(adxl345):
     return adxl345.getAxes(True)
 
-def send_magnitude(magnitude):
+def send_mag_data(magnitude):
     print "accel"
     print magnitude
     
