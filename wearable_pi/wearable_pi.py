@@ -4,6 +4,9 @@ import spidev
 import time
 import threading 
 from math import sqrt
+import json
+import socket 
+import RPi.GPIO as GPIO
 
 __author__ = "Amr Gawish"
 __date__ = "$Nov 20, 2015 3:43:40 PM$"
@@ -30,6 +33,11 @@ turn = READ_THREAD
 MAGNITUDE_THRESHOLD = 2.5
 PERIOD_BETWEEN_SAMPLES = 0.01
 
+MY_PORT = 6006
+MY_IP = '0.0.0.0'
+SERVER_PORT = 5005
+SERVER_IP = '108.192.168.0.108'
+
 def bitstring(num):
 	s=bin(num)[2:]
 	return '0'*(8-len(s))+s
@@ -49,10 +57,10 @@ def read_pulse (adc_channel=0 , spi_channel=0):
 
 def send_BPM_data(BPM):
     print BPM
-    #global GBPM
-    #GBPM = BPM
-    #print "BPM"
-    #print BPM
+    message['id'] = 'wearable'
+    message['command'] = 'addSensorData'
+    message['data'] = {'bpm': BPM, 'time': time.time()}
+    sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
 
 def send_BPM_alarm ():
     print "ALARMMMMMMMMMMMMMMMMMMMMMMMMM"
@@ -73,12 +81,15 @@ def BPM_reader_thread(beat_times):
             alarm_flag = 0
             time.sleep(min_seconds_per_beat)
         else:
+            thread_sync (READ_THREAD,SEND_THREAD)
             if len(beat_times) >= 1:
                 #print len(beat_times)
                 if (time.time() - beat_times[len(beat_times)-1]) > TIME_NO_BEATS:
+                    flag[READ_THREAD] = False
                     if alarm_flag is 0 :
                         send_BPM_alarm ()
                         alarm_flag = 1
+                        
 def thread_sync (thread1,thread2):
     flag[thread1] = True
     turn = thread2
@@ -119,13 +130,22 @@ def read_acceleration_to_dict(adxl345):
 def send_mag_data(magnitude):
     print "accel"
     print magnitude
+    message['id'] = 'wearable'
+    message['command'] = 'addSensorData'
+    message['data'] = {'forceMag': magnitude, 'time': time()}
+    sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
     
 def check_magnitude(magnitude):
     return magnitude > MAGNITUDE_THRESHOLD
 
 def send_mag_alarm():
     print "                                 ALARM"
-	
+
+def send_alarm ():
+    message['command'] = 'truePositiveAlarm'
+    message['data'] = time.time()
+    sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
+    
 def acceloremetor_thread():
     count = 0 
     start_time = time.time()
@@ -163,6 +183,7 @@ def start_threads():
 	
 threads = []
 if __name__ == "__main__": 
+    sendingSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     beat_times = []
     start_threads()
 	
