@@ -207,7 +207,7 @@ class ServerController():
 
 		message = emailAPI.CreateMessage('LifeBandCenter@gmail.com',
 				str(contact_data[2]),
-				'LifeBand: PATIENT AT RISK AT '+str(time.time()),
+				'LifeBand: PATIENT AT RISK AT '+str(time.ctime()),
 				'Dear '+contact_data[0]+
 				'\r\n LifeBand is measuring alarming biometrics.'+
 				' Please check on your Patient\r\n\n'+

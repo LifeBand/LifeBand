@@ -113,28 +113,6 @@ class ServerModel():
 		conn.close()
 
 
-	def maintain_databse_size(self):
-		"""
-		Function:
-		Maintain the Database of sensor reading to within 90 days
-
-		Input arguments:
-		None
-
-		Output variables:
-		None
-		"""
-
-		conn = sqlite3.connect(self.db_path)
-
-		conn.cursor().execute('DELETE FROM deviceList WHERE timeStamp < '+str(time.time()-DEF_2_DAYS_IN_SECONDS))
-		conn.commit()
-
-		conn.close()
-
-
-
-
 	def get_latest_data_from_db(self):
 		'''
 		Function: Getting latest bpm and force Data from the Database
@@ -154,8 +132,8 @@ class ServerModel():
 
 
 		if query_data is not None:
-			response['data']['bpm'] = query_data[0]
-			response['data']['forceMag'] = query_data[1]
+			response['data']['bpm'] = query_data[0][0]
+			response['data']['forceMag'] = query_data[1][0]
 		return response
 
 
@@ -338,6 +316,7 @@ class ServerModel():
 			print ('----------------------------------\r\n'+str(time.ctime())+"\r\nCalculating average values")
 			data = list()
 			dd = defaultdict(list)
+			query_data_joined = ()
 			avgBPM = 0
 			avgForceMag = 0
 			conn = sqlite3.connect(self.db_path)
@@ -346,23 +325,23 @@ class ServerModel():
 			conn.cursor().execute('CREATE TEMP TABLE lastForceMag AS SELECT * FROM forceMagData WHERE timeStamp > '+ str(last_check_time))
 
 			conn.cursor().execute('SELECT bpm, forceMag FROM lastBMP INNER JOIN lastForceMag ON lastBMP.timeStamp = lastForceMag.timeStamp').fetchall()
-
+		
 
 			query_data_joined =conn.cursor().execute('SELECT bpm, forceMag FROM bpmData INNER JOIN forceMagData on bpmData.timeStamp = forceMagData.timeStamp').fetchall()
 
 			conn.cursor().execute('DROP TABLE IF EXISTS lastBMP')
 			conn.cursor().execute('DROP TABLE IF EXISTS lastForceMag')
+			if query_data_joined is not None:
+				query_bpm = [row[0] for row in query_data_joined]
+				query_force_mag = [row[1] for row in query_data_joined]
 
-			query_bpm = [row[0] for row in query_data_joined]
-			query_force_mag = [row[1] for row in query_data_joined]
+				avgBPM =  round(reduce(lambda x, y: x + y, query_bpm) / len(query_bpm),1)
+				avgForceMag = round( reduce(lambda x, y: x + y, query_force_mag) / len(query_force_mag),2)
 
-			avgBPM =  round(reduce(lambda x, y: x + y, query_bpm) / len(query_bpm),1)
-			avgForceMag = round( reduce(lambda x, y: x + y, query_force_mag) / len(query_force_mag),2)
+				print('Average BPM: '+str(avgBPM)+' Force: '+ str(avgForceMag))
 
-			print('Average BPM: '+str(avgBPM)+' Force: '+ str(avgForceMag))
-
-			conn.cursor().execute('INSERT INTO '+ DEF_TABLE_NAME_SNAPSHOT_DATA + ' (timeStamp,bpm, forceMag) Values (?,?,?)',(last_check_time,avgBPM,avgForceMag))
-			conn.commit()
+				conn.cursor().execute('INSERT INTO '+ DEF_TABLE_NAME_SNAPSHOT_DATA + ' (timeStamp,bpm, forceMag) Values (?,?,?)',(last_check_time,avgBPM,avgForceMag))
+				conn.commit()
 
 			conn.close()
 			print ('----------------------------------\r\n')
