@@ -121,7 +121,7 @@ def remove_from_pulse (beat_times,ref_time,old_beat_times):
                 
     for b_time in old_beat_times:
         beat_times.remove(b_time)
-        print(len(beat_times))
+        #print(len(beat_times))
 
 def get_magnitude(x, y, z):
     return sqrt(x**2 + y**2 + z**2)
