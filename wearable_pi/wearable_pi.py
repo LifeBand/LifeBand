@@ -86,11 +86,9 @@ def BPM_reader_thread(beat_times):
             alarm_flag = 0
             time.sleep(min_seconds_per_beat)
         else:
-           # thread_sync (READ_THREAD,SEND_THREAD)
             if len(beat_times) >= 1:
                 #print len(beat_times)
                 if (time.time() - beat_times[len(beat_times)-1]) > TIME_NO_BEATS:
-              #      flag[READ_THREAD] = False
                     if alarm_flag is 0 :
                         send_BPM_alarm ()
                         alarm_flag = 1
@@ -119,9 +117,13 @@ def remove_from_pulse (beat_times,ref_time,old_beat_times):
     for b_time in beat_times:
         if(abs(ref_time - b_time) > SAMPLE_PERIOD_IN_SEC):
             old_beat_times.append(b_time)
+            count +=1
+            print (count)
                 
     for b_time in old_beat_times:
         beat_times.remove(b_time)
+        count -= 1
+        print(count)
 
 def get_magnitude(x, y, z):
     return sqrt(x**2 + y**2 + z**2)
@@ -188,6 +190,9 @@ def start_threads():
 	
 threads = []
 if __name__ == "__main__": 
+    time.sleep(5)
+    printed = False
+    count = 0
     sendingSock = UDPFunc.createUDPSocket(MY_IP, MY_PORT)
     message = {'id':'wearable'}
     beat_times = []
