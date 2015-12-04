@@ -114,14 +114,15 @@ def calculate_average_bpm(beat_times):
         return length*SECONDS_PER_MIN/(beat_times[length - 1] - beat_times[0])
 
 def remove_from_pulse (beat_times,ref_time,old_beat_times):
-    for b_time in beat_times:
-        if(abs(ref_time - b_time) > SAMPLE_PERIOD_IN_SEC):
-            old_beat_times.append(b_time)
+    if len(beat_times) >= 1:
+        for b_time in beat_times:
+            if(abs(ref_time - b_time) > SAMPLE_PERIOD_IN_SEC):
+                old_beat_times.append(b_time)
+                #print(len(beat_times))
+
+        for b_time in old_beat_times:
+            beat_times.remove(b_time)
             #print(len(beat_times))
-                
-    for b_time in old_beat_times:
-        beat_times.remove(b_time)
-        #print(len(beat_times))
 
 def get_magnitude(x, y, z):
     return sqrt(x**2 + y**2 + z**2)
