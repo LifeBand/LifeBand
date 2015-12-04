@@ -178,12 +178,14 @@ def start_threads():
     threads.append(BPM_reader)
     threads.append(BPM_sender)
     threads.append(accelerometer)
-    #BPM_reader.setDaemon(True)
-    #BPM_sender.setDaemon(True)
-    #accelerometer.setDaemon(True)
+    BPM_reader.daemon = True
+    BPM_sender.daemon = True
+    accelerometer.daemon = True
     BPM_reader.start()
     BPM_sender.start()
     accelerometer.start()
+    while True:
+        time.sleep(1)
 	
 	
 threads = []
