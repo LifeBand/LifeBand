@@ -70,7 +70,7 @@ def BPM_reader_thread(beat_times):
             flag[READ_THREAD] = False
             time.sleep(min_seconds_per_beat)
         else:
-            if len(beat_times) is not 1:
+            if len(beat_times) >= 1:
                 if (time.time() - beat_times[len(beat_times)-1]) > 3:
                     send_BPM_alarm ()
 
@@ -127,7 +127,7 @@ def acceloremetor_thread():
     start_time = time.time()
     while True:
 	time.sleep(0.1)
-        magnitude = get_magnitude_dic(read_acceleration_to_dict(adxl345))
+        magnitude = get_magnitude_dict(read_acceleration_to_dict(adxl345))
         if (time.time() - start_time) < 1:
             if count is 0:
                 max_mag = magnitude
