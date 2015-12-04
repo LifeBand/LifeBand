@@ -87,12 +87,13 @@ def BPM_reader_thread(beat_times):
             time.sleep(min_seconds_per_beat)
         else: 
             if len(beat_times) >= 1:
-                last_beat_time = beat_times[len(beat_times)-1]    
+                thread_sync (READ_THREAD,SEND_THREAD)
                 #print len(beat_times)
-                if (time.time() - last_beat_time) > TIME_NO_BEATS:
+                if (time.time() - beat_times[len(beat_times)-1]) > TIME_NO_BEATS:
                     if alarm_flag is 0 :
                         send_alarm ()
                         alarm_flag = 1
+                flag[READ_THREAD] = False
                         
 def thread_sync (thread1,thread2):
     flag[thread1] = True
