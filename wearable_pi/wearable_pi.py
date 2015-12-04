@@ -74,7 +74,7 @@ def BPM_reader_thread(beat_times):
             time.sleep(min_seconds_per_beat)
         else:
             if len(beat_times) >= 1:
-                print len(beat_times)
+                #print len(beat_times)
                 if (time.time() - beat_times[len(beat_times)-1]) > TIME_NO_BEATS:
                     if alarm_flag is 0 :
                         send_BPM_alarm ()
