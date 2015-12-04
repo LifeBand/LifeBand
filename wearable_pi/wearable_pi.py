@@ -63,7 +63,7 @@ def send_BPM_data(BPM):
     message['data'] = {'number': BPM, 'timeStamp': time.time()}
     sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
 
-def send_BPM_alarm ():
+def send_alarm ():
     print "ALAAAAAAAAAAARRRRRRRRRRRRRMMMMMMMMMMMM"
     message['id'] = 'wearable'
     message['command'] = 'truePositiveAlarm'
@@ -90,7 +90,7 @@ def BPM_reader_thread(beat_times):
                 #print len(beat_times)
                 if (time.time() - beat_times[len(beat_times)-1]) > TIME_NO_BEATS:
                     if alarm_flag is 0 :
-                        send_BPM_alarm ()
+                        send_alarm ()
                         alarm_flag = 1
                         
 def thread_sync (thread1,thread2):
@@ -143,13 +143,7 @@ def send_mag_data(magnitude):
 def check_magnitude(magnitude):
     return magnitude > MAGNITUDE_THRESHOLD
 
-def send_mag_alarm():
-    print "                                 ALARM"
 
-def send_alarm ():
-    message['command'] = 'truePositiveAlarm'
-    message['data'] = time.time()
-    sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
     
 def acceloremetor_thread():
     count = 0 
@@ -168,7 +162,7 @@ def acceloremetor_thread():
         else:
             start_time = time.time()
             if check_magnitude(max_mag):
-                send_mag_alarm()
+                send_alarm()
                 count = 0
             else:
                 count = 0
