@@ -93,15 +93,13 @@ public class LifeBandRefresher implements Runnable {
                 String keyTimeStamp = (String) iterator.next();
                 JSONArray bpmForceArray = dataDict.getJSONArray(keyTimeStamp);
 
-                Date date = new Date((long) Double.parseDouble(keyTimeStamp));
-                int minutes = date.getMinutes();
-
+                double time = Math.round((System.currentTimeMillis()/1000 - Double.parseDouble(keyTimeStamp))*100)/100;
 
 //                heartbeats[index] = new DataPoint(Double.parseDouble(Time.keyTimeStamp), bpmForceArray.getDouble(0));
 //                accelerations[index] = new DataPoint(Double.parseDouble(keyTimeStamp), bpmForceArray.getDouble(1));
 
-                heartbeats[index] = new DataPoint(minutes, bpmForceArray.getDouble(0));
-                accelerations[index] = new DataPoint(minutes, bpmForceArray.getDouble(1));
+                heartbeats[index] = new DataPoint(time, bpmForceArray.getDouble(0));
+                accelerations[index] = new DataPoint(time, bpmForceArray.getDouble(1));
 
             }
             Log.d(MainActivity.TAG, heartbeats.length + "");

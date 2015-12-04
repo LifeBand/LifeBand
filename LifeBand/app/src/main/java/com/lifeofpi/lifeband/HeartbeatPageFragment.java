@@ -62,9 +62,6 @@ public class HeartbeatPageFragment extends PageFragment {
     }
 
     private void updateGraph(){
-//        Log.d(MainActivity.TAG, "hearbeats length: " + lifeBand.getHeartbeats().length + "");
-//        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(lifeBand.getHeartbeats());
-//        series.setColor(mainActivity.getResources().getColor(R.color.ColorPrimary));
         graphView.removeAllSeries();
         graphView.addSeries(lifeBand.getHeartbeatSeries());
 

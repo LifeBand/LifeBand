@@ -8,7 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 /**
  * Created by dominikschmidtlein on 11/4/2015.
@@ -32,6 +34,9 @@ public class OverviewPageFragment extends PageFragment implements LifeBandListen
 
     private TextView currentHeartbeatTextView;
     private TextView currentAccelerationTextView;
+
+    private GraphView heartbeatGraph;
+    private GraphView accelerationGraph;
 
     /*Creates an instance of OverviewPageFragment and can be called statically*/
     public static OverviewPageFragment newInstance(int page) {
@@ -64,6 +69,9 @@ public class OverviewPageFragment extends PageFragment implements LifeBandListen
         currentHeartbeatTextView = (TextView) view.findViewById(R.id.currentHeartbeatTextView);
         currentAccelerationTextView = (TextView) view.findViewById(R.id.currentAccelerationTextView);
 
+        heartbeatGraph = (GraphView) view.findViewById(R.id.heartbeat_graph);
+        accelerationGraph = (GraphView) view.findViewById(R.id.acceleration_graph);
+
         update();
 
         return view;
@@ -76,6 +84,16 @@ public class OverviewPageFragment extends PageFragment implements LifeBandListen
             public void run() {
                 currentHeartbeatTextView.setText(lifeBand.getLatestHeartbeat() + "");
                 currentAccelerationTextView.setText(lifeBand.getLatestAcceleration() + "");
+
+                if(heartbeatGraph != null) {
+                    heartbeatGraph.removeAllSeries();
+                    heartbeatGraph.addSeries(lifeBand.getHeartbeatSeries());
+                }
+
+                if(accelerationGraph != null) {
+                    accelerationGraph.removeAllSeries();
+                    accelerationGraph.addSeries(lifeBand.getAccelerationSeries());
+                }
             }
         });
     }

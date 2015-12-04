@@ -8,66 +8,87 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TableLayout
-            android:id="@+id/overview_layout"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="top"
-            android:stretchColumns="2">
+            android:orientation="vertical">
 
-            <TableRow
+            <TableLayout
+                android:id="@+id/overview_layout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:weightSum="1">
+                android:layout_height="wrap_content"
+                android:gravity="top"
+                android:stretchColumns="2">
 
-                <TextView
-                    android:id="@+id/heartbeatTextView"
+                <TableRow
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_column="0"
-                    android:layout_weight="0.6"
-                    android:text="Heartbeat"
-                    android:textSize="20sp" />
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:weightSum="1">
 
-                <TextView
-                    android:id="@+id/currentHeartbeatTextView"
+                    <TextView
+                        android:id="@+id/heartbeatTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_column="0"
+                        android:layout_weight="0.6"
+                        android:text="Heartbeat"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/currentHeartbeatTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_column="1"
+                        android:layout_weight="0.4"
+                        android:gravity="start"
+                        android:text="-"
+                        android:textSize="35sp" />
+
+                </TableRow>
+
+                <TableRow
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_column="1"
-                    android:layout_weight="0.4"
-                    android:gravity="start"
-                    android:text="-"
-                    android:textSize="35sp" />
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:weightSum="1">
 
-            </TableRow>
+                    <TextView
+                        android:id="@+id/accelerationTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_column="0"
+                        android:layout_weight="0.6"
+                        android:text="Max Impact within Hour"
+                        android:textSize="20sp" />
 
-            <TableRow
+                    <TextView
+                        android:id="@+id/currentAccelerationTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_column="1"
+                        android:layout_weight="0.4"
+                        android:gravity="start"
+                        android:text="-"
+                        android:textSize="35sp" />
+                </TableRow>
+            </TableLayout>
+
+            <com.jjoe64.graphview.GraphView
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/heartbeat_graph"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:weightSum="1">
+                android:layout_height="200dip"
+                android:gravity="center" />
 
-                <TextView
-                    android:id="@+id/accelerationTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_column="0"
-                    android:layout_weight="0.6"
-                    android:text="Max Impact within Hour"
-                    android:textSize="20sp" />
+            <com.jjoe64.graphview.GraphView
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/acceleration_graph"
+                android:layout_width="match_parent"
+                android:layout_height="200dip"
+                android:gravity="center" />
 
-                <TextView
-                    android:id="@+id/currentAccelerationTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_column="1"
-                    android:layout_weight="0.4"
-                    android:gravity="start"
-                    android:text="-"
-                    android:textSize="35sp" />
-            </TableRow>
-        </TableLayout>
+        </LinearLayout>
 
     </ScrollView>
 

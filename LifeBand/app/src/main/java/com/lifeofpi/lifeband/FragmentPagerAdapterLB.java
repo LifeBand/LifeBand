@@ -10,7 +10,7 @@ import android.support.v4.app.FragmentPagerAdapter;
  * Created by dominikschmidtlein on 11/4/2015.
  */
 public class FragmentPagerAdapterLB extends FragmentPagerAdapter {
-    final int PAGE_COUNT = 3;
+    final int PAGE_COUNT = 1;
     private String tabTitles[] = new String[] { OverviewPageFragment.NAME, HeartbeatPageFragment.NAME, AccelerationPageFragment.NAME };
     private Context context;
 
@@ -27,12 +27,12 @@ public class FragmentPagerAdapterLB extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         switch (position){
-            case 0:
-                return OverviewPageFragment.newInstance(position + 1);
-            case 1:
-                return HeartbeatPageFragment.newInstance(position + 1);
-            case 2:
-                return AccelerationPageFragment.newInstance(position + 1);
+//            case 0:
+//                return OverviewPageFragment.newInstance(position + 1);
+//            case 1:
+//                return HeartbeatPageFragment.newInstance(position + 1);
+//            case 2:
+//                return AccelerationPageFragment.newInstance(position + 1);
             default:
                 return OverviewPageFragment.newInstance(position + 1);
         }
