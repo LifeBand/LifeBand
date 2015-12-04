@@ -88,12 +88,15 @@ def BPM_reader_thread(beat_times):
         else: 
             #if len(beat_times) > 1:
             try:
-                if (time.time() - beat_times[-1]) > TIME_NO_BEATS:
-                    if alarm_flag is 0 :
-                        send_alarm ()
-                        alarm_flag = 1
-            except:
-                pass
+                try:
+                    if (time.time() - beat_times[-1]) > TIME_NO_BEATS:
+                        if alarm_flag is 0 :
+                            send_alarm ()
+                            alarm_flag = 1
+                except:
+                    pass
+            except KeyboardInterrupt:
+                sys.exit(0)
                # print "index is zero so not today come back later"
                 
 def thread_sync (thread1,thread2):
@@ -178,6 +181,9 @@ def start_threads():
     threads.append(BPM_reader)
     threads.append(BPM_sender)
     threads.append(accelerometer)
+    BPM_reader.daemon = True
+    BPM_sender.daemon = True
+    accelerometer.daemon = True
     BPM_reader.start()
     BPM_sender.start()
     accelerometer.start()
@@ -185,11 +191,13 @@ def start_threads():
 	
 threads = []
 if __name__ == "__main__": 
-    time.sleep(5)
-    printed = False
-    sendingSock = UDPFunc.createUDPSocket(MY_IP, MY_PORT)
-    message = {'id':'wearable'}
-    beat_times = []
-    start_threads()
-	
+    try:
+        time.sleep(5)
+        printed = False
+        sendingSock = UDPFunc.createUDPSocket(MY_IP, MY_PORT)
+        message = {'id':'wearable'}
+        beat_times = []
+        start_threads()
+    except(KeyboardInterrupt, SystemExit):
+	sendingSock.close();
 
