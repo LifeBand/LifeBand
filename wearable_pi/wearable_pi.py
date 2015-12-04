@@ -7,6 +7,7 @@ from math import sqrt
 import json
 import socket 
 import RPi.GPIO as GPIO
+import UDPFunc
 
 __author__ = "Amr Gawish"
 __date__ = "$Nov 20, 2015 3:43:40 PM$"
@@ -183,7 +184,7 @@ def start_threads():
 	
 threads = []
 if __name__ == "__main__": 
-    sendingSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sendingSock = UDPFunc.createUDPSocket(SERVER_IP, SERVER_PORT)
     message = {'id':'wearable'}
     beat_times = []
     start_threads()
