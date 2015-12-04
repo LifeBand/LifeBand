@@ -19,8 +19,8 @@ THRESHOLD = 0.65
 
 MY_PORT = '6006'
 MY_IP = '0.0.0.0'
-SERVER_PORT = ''
-SERVER_IP = '5005'
+SERVER_PORT = '5005'
+SERVER_IP = '108.192.168.0.108'
 
 CONN_MAX_SPEED_HZ = 1200000
 CONN_MODE = 0
@@ -129,8 +129,6 @@ def start_threads():
     
 threads = [] 
 if __name__ == "__main__":
-    rcvSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    rcvSock.bind((MY_IP,MY_PORT))
     sendingSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     alarm = False
     beat_times = []
