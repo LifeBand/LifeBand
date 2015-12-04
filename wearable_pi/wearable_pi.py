@@ -181,9 +181,9 @@ def start_threads():
     threads.append(BPM_reader)
     threads.append(BPM_sender)
     threads.append(accelerometer)
-    BPM_reader.setDaemon(True)
-    BPM_sender.setDaemon(True)
-    accelerometer.setDaemon(True)
+    #BPM_reader.setDaemon(True)
+    #BPM_sender.setDaemon(True)
+    #accelerometer.setDaemon(True)
     BPM_reader.start()
     BPM_sender.start()
     accelerometer.start()
@@ -191,13 +191,13 @@ def start_threads():
 	
 threads = []
 if __name__ == "__main__": 
-    try:
-        time.sleep(5)
-        printed = False
-        sendingSock = UDPFunc.createUDPSocket(MY_IP, MY_PORT)
-        message = {'id':'wearable'}
-        beat_times = []
-        start_threads()
-    except(KeyboardInterrupt, SystemExit):
-	sendingSock.close();
+#try:
+    time.sleep(5)
+    printed = False
+    sendingSock = UDPFunc.createUDPSocket(MY_IP, MY_PORT)
+    message = {'id':'wearable'}
+    beat_times = []
+    start_threads()
+# except(KeyboardInterrupt, SystemExit):
+    #sendingSock.close();
 
