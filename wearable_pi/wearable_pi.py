@@ -184,6 +184,7 @@ def start_threads():
 threads = []
 if __name__ == "__main__": 
     sendingSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    message = {'id':'wearable'}
     beat_times = []
     start_threads()
 	
