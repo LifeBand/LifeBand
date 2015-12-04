@@ -122,11 +122,11 @@ def send_mag_alarm():
     print "                                 ALARM"
 	
 def acceloremetor_thread():
-    adxl345 = ADXL345()
     count = 0 
     start_time = time.time()
     while True:
 	time.sleep(0.1)
+        adxl345 = ADXL345()
         magnitude = get_magnitude_dict(read_acceleration_to_dict(adxl345))
         if (time.time() - start_time) < 1:
             if count is 0:
@@ -139,6 +139,7 @@ def acceloremetor_thread():
             start_time = time.time()
             if check_magnitude(max_mag):
                 send_mag_alarm()
+                count = 0
             else:
                 count = 0
                 send_mag_data(max_mag)
