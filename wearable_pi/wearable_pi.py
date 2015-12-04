@@ -37,7 +37,7 @@ PERIOD_BETWEEN_SAMPLES = 0.01
 MY_PORT = 6006
 MY_IP = '0.0.0.0'
 SERVER_PORT = 5005
-SERVER_IP = '108.192.168.0.108'
+SERVER_IP = '168.192.168.0.108'
 
 def bitstring(num):
 	s=bin(num)[2:]
@@ -184,7 +184,7 @@ def start_threads():
 	
 threads = []
 if __name__ == "__main__": 
-    sendingSock = UDPFunc.createUDPSocket(SERVER_IP, SERVER_PORT)
+    sendingSock = UDPFunc.createUDPSocket(MY_IP, MY_PORT)
     message = {'id':'wearable'}
     beat_times = []
     start_threads()
