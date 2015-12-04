@@ -18,11 +18,13 @@ public class LifeBandRefresher implements Runnable {
 
     private MainActivity mainActivity;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private UDPHelper udpHelper;
 
 
-    public  LifeBandRefresher(MainActivity mainActivity, SwipeRefreshLayout swipeRefreshLayout){
+    public LifeBandRefresher(MainActivity mainActivity, SwipeRefreshLayout swipeRefreshLayout, UDPHelper udpHelper){
         this.mainActivity = mainActivity;
         this.swipeRefreshLayout = swipeRefreshLayout;
+        this.udpHelper = udpHelper;
     }
 
     @Override
@@ -30,6 +32,9 @@ public class LifeBandRefresher implements Runnable {
         refresh();
     }
 
+    /*The method calls a series of function which request new data, receive the data, check the
+    * data, and if it is ok, then the new data is displayed in the ui thread. The method catches
+    * errors that were not screened by checkJSONData() and displays a DATA_INVALID message.*/
     private void refresh(){
         requestRefreshData();
         JSONObject jsonData = getRefreshData();
@@ -42,17 +47,19 @@ public class LifeBandRefresher implements Runnable {
     * because of no internet access, an error message is temporarily displayed on screen. The
     * contents of the message are defined by LifeBand's data transfer protocol*/
     private boolean requestRefreshData(){
-        JSONObject latestDataJSON = new UDPHelper().getLatestDataJSON;
-        boolean send = UDPHelper.sendUDP(latestDataJSON, getIP(), getSendPort());
+        JSONObject latestDataJSON = udpHelper.getLatestDataJSON;
+        boolean send = udpHelper.sendUDP(latestDataJSON);
         if(!send)
             mainActivity.displayToast(UDPHelper.SEND_FAILED, Toast.LENGTH_SHORT);
+        else
+            mainActivity.displayToast("Data Requested", Toast.LENGTH_SHORT);
         return send;
     }
 
     /*The method calls the receive function and returns the result.
     *   return: the data received from the get latest data request*/
     private JSONObject getRefreshData(){
-        return UDPHelper.receiveUDP(getReceivePort(), MainActivity.RECEIVE_PERIOD);
+        return udpHelper.receiveUDP(MainActivity.RECEIVE_PERIOD);
     }
 
     /*The method checks the JSON data for errors, if an error key exists, the error message is
@@ -68,11 +75,12 @@ public class LifeBandRefresher implements Runnable {
 
     private void unpackJSON(JSONObject jsonData){
         try {
+            Log.d(MainActivity.TAG, jsonData.toString());
             JSONObject dataDict = jsonData.getJSONObject(UDPHelper.PROTOCOL_DATA_KEY);
             Iterator iterator = dataDict.keys();
 
-            DataPoint[] heartbeats = new DataPoint[UDPHelper.NUMBER_OF_DATA_POINTS];
-            DataPoint[] accelerations = new DataPoint[UDPHelper.NUMBER_OF_DATA_POINTS];
+            DataPoint[] heartbeats = new DataPoint[dataDict.length()];
+            DataPoint[] accelerations = new DataPoint[dataDict.length()];
 
             for (int index = 0; iterator.hasNext(); index ++) {
 
@@ -84,11 +92,11 @@ public class LifeBandRefresher implements Runnable {
                 heartbeats[index] = new DataPoint(Double.parseDouble(keyTimeStamp), bpmForceArray.getDouble(0));
                 accelerations[index] = new DataPoint(Double.parseDouble(keyTimeStamp), bpmForceArray.getDouble(1));
             }
-
+            Log.d(MainActivity.TAG, heartbeats.toString());
             mainActivity.getLifeBandModel().setHeartbeats(heartbeats);
             mainActivity.getLifeBandModel().setAccelerations(accelerations);
-
         } catch (Exception e) {
+            e.printStackTrace();
             mainActivity.displayToast(UDPHelper.DATA_INVALID, Toast.LENGTH_SHORT);
         }
     }
@@ -101,46 +109,6 @@ public class LifeBandRefresher implements Runnable {
         }catch (Exception e){
             return null;
         }
-    }
-
-    /*The method provides a short-hand for retrieving strings from the string resources.
-    *   input: the id of the string in question
-    *   return: the string with the provided id*/
-    private String getStringFromResources(int id){
-        return mainActivity.getResources().getString(id);
-    }
-
-    /*The method provides a short-hand for retreiving shared preferences.
-    *   input: key - the key for the desired shared preference
-    *   input: value - the default value to be returned if the key does not exist
-    *   return: the string value of the shared preference defined by the provided key*/
-    private String getSharedPreferences(String key, String value){
-        return mainActivity.sharedPreferences.getString(key, value);
-    }
-
-    /*The method returns the port from shared preferences with the key "port_key"
-     *  return: port */
-    private int getSendPort(){
-        String key = getStringFromResources(R.string.send_port_key);
-        String def = getStringFromResources(R.string.send_port_default);
-        return Integer.valueOf(getSharedPreferences(key, def));
-    }
-
-    /*The method returns the port from shared preferences with the key "port_key"
-     *  return: port */
-    private int getReceivePort(){
-        String key = getStringFromResources(R.string.receive_port_key);
-        String def = getStringFromResources(R.string.receive_port_default);
-        return Integer.valueOf(getSharedPreferences(key, def));
-    }
-
-
-    /*The method returns the IP as a string from the shared preferences
-    *   return: IP*/
-    private String getIP(){
-        String key = getStringFromResources(R.string.ip_key);
-        String def = getStringFromResources(R.string.ip_default);
-        return getSharedPreferences(key, def);
     }
 
     /*The method stops the refresh icon from spinning on the screen. Must be executed by ui thread*/
