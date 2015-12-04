@@ -46,9 +46,15 @@ def read_pulse (adc_channel=0 , spi_channel=0):
 	conn.close()
 	return int(reply,2)/ 2**10
 
-def send(BPM):
-    print "BPM"
+def send_BPM_data(BPM):
     print BPM
+    #global GBPM
+    #GBPM = BPM
+    #print "BPM"
+    #print BPM
+
+def send_BPM_alarm ():
+    print "ALARMMMMMMMMMMMMMMMMMMMMMMMMM"
 
 def BPM_sender_thread(beat_times):
     while(True):
@@ -57,15 +63,15 @@ def BPM_sender_thread(beat_times):
         
 def BPM_reader_thread(beat_times):
     while True:
-#	print "                                                         pulse"
         voltage = read_pulse()
         if voltage > THRESHOLD:
-            print "pulse"
-	    print  voltage
-	    thread_sync (READ_THREAD,SEND_THREAD)
+            thread_sync (READ_THREAD,SEND_THREAD)
             beat_times.append(time.time())
             flag[READ_THREAD] = False
             time.sleep(min_seconds_per_beat)
+        else:
+            if (time.time() - beat_times[len(beat_times)-1]) > 3:
+                send_BPM_alarm ()
 
 def thread_sync (thread1,thread2):
     flag[thread1] = True
@@ -82,7 +88,10 @@ def calculate_average_bpm(beat_times):
     flag[SEND_THREAD] = False
     if length == 0:
         return 0
-    return length*SECONDS_PER_MIN/(beat_times[length - 1] - beat_times[0])
+    if length == 1:
+       return SECONDS_PER_MIN/ beat_times[0]
+    else:
+        return length*SECONDS_PER_MIN/(beat_times[length - 1] - beat_times[0])
 
 def remove_from_pulse (beat_times,ref_time,old_beat_times):
     for b_time in beat_times:
@@ -91,10 +100,6 @@ def remove_from_pulse (beat_times,ref_time,old_beat_times):
                 
     for b_time in old_beat_times:
         beat_times.remove(b_time)
-		
-		
-def test_thread(b, n):
-    return -1
 
 def get_magnitude(x, y, z):
     return sqrt(x**2 + y**2 + z**2)
@@ -112,17 +117,30 @@ def send_magnitude(magnitude):
 def check_magnitude(magnitude):
     return magnitude > MAGNITUDE_THRESHOLD
 
-def send_alarm():
+def send_mag_alarm():
     print "                                 ALARM"
 	
 def acceloremetor_thread():
     adxl345 = ADXL345()
+    count = 0 
+    start_time = time.time()
     while True:
-       time.sleep(PERIOD_BETWEEN_SAMPLES)
-       magnitude = get_magnitude_dict(read_acceleration_to_dict(adxl345))
-       send_magnitude(magnitude)
-       if check_magnitude(magnitude):
-           send_alarm()
+	sleep(0.1)
+        magnitude = get_magnitude_dic(read_acceleration_to_dict(adxl345))
+        if (time.time() - start_time) < 1:
+            if count is 0:
+                max_mag = magnitude
+                count = 1;
+            else:
+                if magnitude > max_mag :
+                    max_mag = magnitude
+        else:
+            start_time = time.time()
+            if check_magnitude(max_mag):
+                send_mag_alarm()
+            else:
+                count = 0
+                send_mag_data(max_mag)
 			
 def start_threads():
     BPM_reader = threading.Thread(target = BPM_reader_thread, args=(beat_times,))
