@@ -86,13 +86,15 @@ def BPM_reader_thread(beat_times):
             alarm_flag = 0
             time.sleep(min_seconds_per_beat)
         else: 
-            if len(beat_times) > 1:
-                #print len(beat_times)
+            #if len(beat_times) > 1:
+            try:
                 if (time.time() - beat_times[-1]) > TIME_NO_BEATS:
                     if alarm_flag is 0 :
                         send_alarm ()
                         alarm_flag = 1
-                        
+            except:
+                print "index is zero so not today come back later"
+                
 def thread_sync (thread1,thread2):
     flag[thread1] = True
     turn = thread2
