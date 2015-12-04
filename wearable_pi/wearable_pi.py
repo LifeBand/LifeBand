@@ -59,7 +59,7 @@ def send_BPM_alarm ():
 def BPM_sender_thread(beat_times):
     while(True):
         time.sleep(SECONDS_PER_SEND)
-        send(calculate_average_bpm(beat_times))
+        send_BPM_data(calculate_average_bpm(beat_times))
         
 def BPM_reader_thread(beat_times):
     while True:
@@ -70,8 +70,9 @@ def BPM_reader_thread(beat_times):
             flag[READ_THREAD] = False
             time.sleep(min_seconds_per_beat)
         else:
-            if (time.time() - beat_times[len(beat_times)-1]) > 3:
-                send_BPM_alarm ()
+            if len(beat_times) is not 1:
+                if (time.time() - beat_times[len(beat_times)-1]) > 3:
+                    send_BPM_alarm ()
 
 def thread_sync (thread1,thread2):
     flag[thread1] = True
@@ -125,7 +126,7 @@ def acceloremetor_thread():
     count = 0 
     start_time = time.time()
     while True:
-	sleep(0.1)
+	time.sleep(0.1)
         magnitude = get_magnitude_dic(read_acceleration_to_dict(adxl345))
         if (time.time() - start_time) < 1:
             if count is 0:
