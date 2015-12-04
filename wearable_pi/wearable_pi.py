@@ -64,7 +64,10 @@ def send_BPM_data(BPM):
     sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
 
 def send_BPM_alarm ():
-    print "ALARMMMMMMMMMMMMMMMMMMMMMMMMM"
+    message['id'] = 'wearable'
+    message['command'] = 'trueFalseAlarm'
+    message['data'] = {'timeStamp': time.time()}
+    sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
 
 def BPM_sender_thread(beat_times):
     while(True):
