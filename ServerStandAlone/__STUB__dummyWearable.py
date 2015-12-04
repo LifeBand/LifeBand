@@ -46,18 +46,17 @@ def main(argv):
 			'\taverage HeartRate: ' + str(data_decodded['data']['min'])
 			)
 
-	data = {'id':'wearable','command':'addSensorData','data':{'timeStamp':time.time(),'bpm':0,'forceMag':0}}
+	data = {'id':'wearable','command':'addData','data':{'timeStamp':time.time(),'number':0}}
 
 	while True:
 		time.sleep(1)
+		data['command'] = 'addBPMData'
 		data['data']['timeStamp'] = time.time()
-		data['data']['bpm'] = random.randint(50,160)
-		data['data']['forceMag'] = random.randint(0,6)
-		print ( 'Time: '+ str(time.time()) + '\tBPM: '+ str(data['data']['bpm']) + '   \tforceMag: ' + str(data['data']['forceMag']) )
-
+		data['data']['number'] = random.randint(50,160)
+		print ( 'Time: '+ str(time.time()) + '\tBPM: '+ str(data['data']['number']))
 		server.sendto(json.dumps(data),(SERVER_IP,SERVER_PORT))
 
-		if data['data']['forceMag'] >4 and data['data']['bpm'] >130:
+		if data['data']['number'] >150:
 			if random.choice([True, False]):
 				server.sendto(json.dumps(
 							{'id':'wearable',
@@ -72,5 +71,15 @@ def main(argv):
 							'data':{'timeStamp':time.time()}}
 							),
 							(SERVER_IP,SERVER_PORT))
+
+		data['command'] = 'addForceMagData'
+		data['data']['timeStamp'] = time.time()
+		data['data']['number'] = random.randint(0,6)
+
+		print ( 'Time: '+ str(time.time()) + '   \tforceMag: ' + str(data['data']['number']) )
+
+		server.sendto(json.dumps(data),(SERVER_IP,SERVER_PORT))
+
+
 if __name__ == "__main__":
     main(sys.argv)

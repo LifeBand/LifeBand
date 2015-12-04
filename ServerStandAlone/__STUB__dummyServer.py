@@ -28,7 +28,7 @@ import databaseFunc as dbFunc
 
 class ServerController():
 
-	def __init__(self, ip, port_Listen, port_Send):
+	def __init__(self, ip='0.0.0.0', port_Listen=5005, port_Send=6006):
 		"""
 		Function:
 		To initialize the instance variables
@@ -114,13 +114,12 @@ class ServerController():
 		elif data_decoded['id'] == "wearable":
 			print (str(time.ctime())+"Wearable data Received from "+str(received_ip))
 
-			if data_decoded['command'] == 'addSensorData':
+			if data_decoded['command'] == 'addBPMData':
 				print ('\t'+"Adding pulse data to database")
-
+			elif data_decoded['command'] == 'addForceMagData':
+				print ('\t'+"Adding fprce data to database")
 			elif data_decoded['command'] == 'truePositiveAlarm':
 				print ('\t'+"Adding True Positive Alarm to database")
-
-
 			elif data_decoded['command'] == 'falsePositiveAlarm':
 				print ('\t'+"Adding False Positive Alarm to database")
 

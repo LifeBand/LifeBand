@@ -5,8 +5,6 @@ import uuid
 
 
 
-
-
 def create_table(conn,tableName,columns):
 	'''
 	Function: Create a table with the specified name and columns passed in

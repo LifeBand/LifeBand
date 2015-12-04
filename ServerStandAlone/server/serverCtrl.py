@@ -86,11 +86,11 @@ class ServerController():
 		data_decoded = json.loads(received_data)
 
 		if data_decoded['id'] == "phone":
-			print (str(time.ctime())+"Phone data Received from "+str(received_ip))
+			print (str(time.ctime())+" "+str(received_ip)+": Phone ")
 			self.phone_network_handler(conn,received_data,data_decoded,(received_ip,received_port))
 
 		elif data_decoded['id'] == "wearable":
-			print (str(time.ctime())+"Wearable data Received from "+str(received_ip))
+			print (str(time.ctime())+" "+str(received_ip)+": Wearable ")
 			self.wearable_network_handler(conn,received_data,data_decoded,(received_ip,received_port))
 		else:
 			print('ERROR:Message from unknown sender')
@@ -100,7 +100,7 @@ class ServerController():
 
 
 		if data_decoded['command'] == 'getPastDataSet':
-			print ('\t'+"Sending past Pulse Data")
+			print ('\t'+"Sending past Data Set")
 			conn.sendto(
 					json.dumps(
 							self.DEF_MODEL.get_past_data_from_db(
@@ -135,7 +135,7 @@ class ServerController():
 					json.loads(data_decoded['data'].decode('utf-8'))
 					)
 		else:
-			print('\t ERROR: Unknown Command Received from Phone')
+			print('\t ERROR: Unknown Command Received from Phone --> '+ data_decoded['command'])
 
 
 
@@ -143,15 +143,22 @@ class ServerController():
 
 	def wearable_network_handler(self,conn,received_data,data_decoded,(received_ip,received_port)):
 
-		if data_decoded['command'] == 'addSensorData':
-			print ('\t'+"Adding pulse data to database")
+		if data_decoded['command'] == 'addBPMData':
+			print ('\t'+"Adding BPM data ")
 			self.DEF_MODEL.add_sensor_data_to_db(
-					'pulse',
+					'bpm',
+					data_decoded['data']
+			)
+
+		elif data_decoded['command'] == 'addForceMagData':
+			print ('\t'+"Adding Force Magnitude data ")
+			self.DEF_MODEL.add_sensor_data_to_db(
+					'forceMag',
 					data_decoded['data']
 			)
 
 		elif data_decoded['command'] == 'truePositiveAlarm':
-			print ('\t'+"Adding True Positive Alarm to database")
+			print ("ALARM RECEIVED: NOTIFYING EMERGENCY CONTACT ")
 			self.DEF_MODEL.add_alarm_to_db(
 
 				'TRUE',
@@ -165,18 +172,18 @@ class ServerController():
 				self.send_alert_email(conn,contact,latest_data)
 
 		elif data_decoded['command'] == 'falsePositiveAlarm':
-			print ('\t'+"Adding False Positive Alarm to database")
+			print ("FALSE ALARM RECEIVED: Adding to DB ")
 			self.DEF_MODEL.add_alarm_to_db('FALSE',
 					data_decoded['data'])
 
 		elif data_decoded['command'] == 'getPatientInfo':
-			print ('\t'+"Sending Patient Info from database")
+			print ('\t'+"Sending Patient Info from database ")
 			conn.sendto(
 					json.dumps(self.DEF_MODEL.get_patient_info_from_db()),
 					(received_ip,self.DEF_SEND_PORT))
 
 		else:
-			print('\t ERROR: Unknown Command Received from Wearable')
+			print('\t ERROR: Unknown Command Received from Wearable --> '+ data_decoded['command'])
 
 
 
@@ -245,9 +252,9 @@ class ServerController():
 			server.close()
 
 	def send_alert_phone(self):
-		self.sendNotification('ALERT: Patient is at risk: BPM: '+
+		self.sendNotification('ALERT: Patient BPM: '+
 				str(self.DEF_MODEL.get_latest_data_from_db()['data']['bpm'])+
-				' Force felt: '+
+				' Force G\'s: '+
 				str(self.DEF_MODEL.get_latest_data_from_db()['data']['forceMag'])
 				)
 
