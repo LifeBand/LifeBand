@@ -59,8 +59,8 @@ def read_pulse (adc_channel=0 , spi_channel=0):
 def send_BPM_data(BPM):
     print BPM
     message['id'] = 'wearable'
-    message['command'] = 'addSensorData'
-    message['data'] = {'bpm': BPM, 'time': time.time()}
+    message['command'] = 'addBPMData'
+    message['data'] = {'number': BPM, 'timeStamp': time.time()}
     sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
 
 def send_BPM_alarm ():
@@ -82,11 +82,11 @@ def BPM_reader_thread(beat_times):
             alarm_flag = 0
             time.sleep(min_seconds_per_beat)
         else:
-            thread_sync (READ_THREAD,SEND_THREAD)
+           # thread_sync (READ_THREAD,SEND_THREAD)
             if len(beat_times) >= 1:
                 #print len(beat_times)
                 if (time.time() - beat_times[len(beat_times)-1]) > TIME_NO_BEATS:
-                    flag[READ_THREAD] = False
+              #      flag[READ_THREAD] = False
                     if alarm_flag is 0 :
                         send_BPM_alarm ()
                         alarm_flag = 1
@@ -132,8 +132,8 @@ def send_mag_data(magnitude):
     print "accel"
     print magnitude
     message['id'] = 'wearable'
-    message['command'] = 'addSensorData'
-    message['data'] = {'forceMag': magnitude, 'time': time.time()}
+    message['command'] = 'addForceMagData'
+    message['data'] = {'number': magnitude, 'timeStamp': time.time()}
     sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
     
 def check_magnitude(magnitude):
