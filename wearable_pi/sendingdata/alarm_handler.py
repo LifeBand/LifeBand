@@ -18,10 +18,9 @@ GPIO.setup (17, GPIO.IN)
 
 class alarm_handler:
 
-    def __init__(self, bufsize, server_IP, server_PORT):
+    def __init__(self, server_IP, server_PORT):
         self.alarming = 10
         self.alarm = False
-        self.bufsize = bufsize
         self.lastTime = time.mktime(time.localtime())
         self.minThreshold = 60
         self.maxThreshold = 100
