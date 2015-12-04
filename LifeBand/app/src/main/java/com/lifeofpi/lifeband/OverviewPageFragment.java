@@ -2,15 +2,11 @@ package com.lifeofpi.lifeband;
 
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.jjoe64.graphview.series.DataPoint;
-
-import org.json.JSONObject;
 
 /**
  * Created by dominikschmidtlein on 11/4/2015.
@@ -28,7 +24,7 @@ import org.json.JSONObject;
         elif pull down repeatedly:
             should update as normal*/
 
-public class OverviewPageFragment extends PageFragment {
+public class OverviewPageFragment extends PageFragment implements LifeBandListener {
 
     public static final String NAME = "Overview";
 
@@ -37,7 +33,11 @@ public class OverviewPageFragment extends PageFragment {
 
     /*Creates an instance of OverviewPageFragment and can be called statically*/
     public static OverviewPageFragment newInstance(int page) {
-        return (OverviewPageFragment) PageFragment.newInstance(page, new OverviewPageFragment());
+        Bundle args = new Bundle();
+        args.putInt(ARG_PAGE, page);
+        OverviewPageFragment fragment = new OverviewPageFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     /*Method is called when this fragment is created. Method finds all child components and
@@ -48,23 +48,35 @@ public class OverviewPageFragment extends PageFragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_overview_tab, container, false);
 
-        setupRefresh((SwipeRefreshLayout) view);
+        mainActivity.getLifeBandModel().addView(OverviewPageFragment.this);
+
+        final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container_overview);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                UDPHelper udpHelper = new UDPHelper(mainActivity);
+                new Thread(new LifeBandRefresher(mainActivity, swipeRefreshLayout, udpHelper)).start();
+            }
+        });
 
         currentHeartbeatTextView = (TextView) view.findViewById(R.id.currentHeartbeatTextView);
         currentAccelerationTextView = (TextView) view.findViewById(R.id.currentAccelerationTextView);
+
         return view;
     }
 
     @Override
     public void update() {
-        DataPoint[] heartbeats = lifeBand.getHeartbeats();
-        DataPoint[] accelerations = lifeBand.getAccelerations();
+        final double currentHearbeat = lifeBand.getHeartbeats()[lifeBand.getHeartbeats().length - 1].getY();
+        Log.d(MainActivity.TAG, currentHearbeat + "");
+        final double currentAcceleration = lifeBand.getAccelerations()[lifeBand.getAccelerations().length - 1].getY();
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                currentHeartbeatTextView.setText(heartbeats[heartbeats.length - 1].getY() + "");
-                currentAccelerationTextView.setText(accelerations[accelerations.length - 1].getY() + "");
+                currentHeartbeatTextView.setText(currentHearbeat + "");
+                currentAccelerationTextView.setText(currentAcceleration + "");
             }
         });
     }
+
 }

@@ -1,14 +1,10 @@
 from __future__ import division 
 #from adxl345 import ADXL345
-import spidev 
-import time
-import threading
-#import json
-#import socket
-#import RPi.GPIO as GPIO
+import spidev, time, threading, json, socket
+import RPi.GPIO as GPIO
 #from math import sqrt
 
-__author__ = "A=mr Gawish"
+__author__ = "Amr Gawish"
 __date__ = "$3-Dec-2015 1:21:56 AM$"
 
 # constant for the pulse sensor
@@ -21,10 +17,15 @@ HUMAN_BPM_LIMIT = 150
 SECONDS_PER_MIN = 60
 THRESHOLD = 0.65
 
+MY_PORT = '6006'
+MY_IP = '0.0.0.0'
+SERVER_PORT = '5005'
+SERVER_IP = '108.192.168.0.108'
+
 CONN_MAX_SPEED_HZ = 1200000
 CONN_MODE = 0
 
-min_seconds_per_beat = SECONDS_PER_MIN/HUMAN_BPM_LIMIT
+min_seconds_per_beat = 1.0*SECONDS_PER_MIN5HUMAN_BPM_LIMIT
 
 flag = [False, False]
 turn = READ_THREAD
@@ -63,20 +64,29 @@ def BPM_reader_thread(beat_times):
             beat_times.append(time.time())
 
             flag[READ_THREAD] = False
-            time.sleep(min_seconds_per_beat)
+            time.sleep(min_seconds_per_beat/1.2)
         else:
             if (time.time() - beat_times[len(beat_times)-1]) > 3:
-                send_BPM_alarm ()
+                send_alarm ()
             
 def send_BPM_data(BPM):
-    print BPM
+    time = time.time()
+    message['id'] = 'wearable'
+    message['command'] = 'addSensorData'
+    message['data'] = {'bpm': BPM, 'time': time}
+    sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
+    if BPM > HUMAN_BPM_LIMIT or BPM < 1.0/min_seconds_per_beat:
+        send_alarm()
+
     #global GBPM
     #GBPM = BPM
     #print "BPM"
     #print BPM
 
-def send_BPM_alarm ():
-    print "ALARMMMMMMMMMMMMMMMMMMMMMMMMM"
+def send_alarm ():
+    message['command'] = 'truePositiveAlarm'
+    message['data'] = time.time()
+    sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
     
 def thread_sync (thread1,thread2):
     flag[thread1] = True
@@ -119,5 +129,7 @@ def start_threads():
     
 threads = [] 
 if __name__ == "__main__":
+    sendingSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    alarm = False
     beat_times = []
     start_threads()

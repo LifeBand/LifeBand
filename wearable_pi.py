@@ -4,10 +4,6 @@ import spidev
 import time
 import threading 
 from math import sqrt
-import json
-import socket 
-import RPi.GPIO as GPIO
-import UDPFunc
 
 __author__ = "Amr Gawish"
 __date__ = "$Nov 20, 2015 3:43:40 PM$"
@@ -16,7 +12,6 @@ READ_THREAD = 0
 SEND_THREAD = 1
 
 SAMPLE_PERIOD_IN_SEC = 30
-TIME_NO_BEATS = 3
 SECONDS_PER_SEND = 1
 HUMAN_BPM_LIMIT = 150
 SECONDS_PER_MIN = 60
@@ -33,11 +28,6 @@ turn = READ_THREAD
 
 MAGNITUDE_THRESHOLD = 2.5
 PERIOD_BETWEEN_SAMPLES = 0.01
-
-MY_PORT = 6006
-MY_IP = '0.0.0.0'
-SERVER_PORT = 5005
-SERVER_IP = '192.168.0.108'
 
 def bitstring(num):
 	s=bin(num)[2:]
@@ -56,44 +46,27 @@ def read_pulse (adc_channel=0 , spi_channel=0):
 	conn.close()
 	return int(reply,2)/ 2**10
 
-def send_BPM_data(BPM):
+def send(BPM):
+    print "BPM"
     print BPM
-    message['id'] = 'wearable'
-    message['command'] = 'addBPMData'
-    message['data'] = {'number': BPM, 'timeStamp': time.time()}
-    sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
-
-def send_alarm ():
-    print "ALAAAAAAAAAAARRRRRRRRRRRRRMMMMMMMMMMMM"
-    message['id'] = 'wearable'
-    message['command'] = 'truePositiveAlarm'
-    message['data'] = {'timeStamp': time.time()}
-    sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
 
 def BPM_sender_thread(beat_times):
     while(True):
         time.sleep(SECONDS_PER_SEND)
-        send_BPM_data(calculate_average_bpm(beat_times))
+        send(calculate_average_bpm(beat_times))
         
 def BPM_reader_thread(beat_times):
-    alarm_flag = 0
     while True:
+#	print "                                                         pulse"
         voltage = read_pulse()
         if voltage > THRESHOLD:
-            thread_sync (READ_THREAD,SEND_THREAD)
+            print "pulse"
+	    print  voltage
+	    thread_sync (READ_THREAD,SEND_THREAD)
             beat_times.append(time.time())
             flag[READ_THREAD] = False
-            alarm_flag = 0
             time.sleep(min_seconds_per_beat)
-        else: 
-            if len(beat_times) >= 1:
-                last_beat_time = beat_times[len(beat_times)-1]    
-                #print len(beat_times)
-                if (time.time() - last_beat_time) > TIME_NO_BEATS:
-                    if alarm_flag is 0 :
-                        send_alarm ()
-                        alarm_flag = 1
-                        
+
 def thread_sync (thread1,thread2):
     flag[thread1] = True
     turn = thread2
@@ -109,20 +82,19 @@ def calculate_average_bpm(beat_times):
     flag[SEND_THREAD] = False
     if length == 0:
         return 0
-    if length == 1:
-       return SECONDS_PER_MIN/ beat_times[0]
-    else:
-        return length*SECONDS_PER_MIN/(beat_times[length - 1] - beat_times[0])
+    return length*SECONDS_PER_MIN/(beat_times[length - 1] - beat_times[0])
 
 def remove_from_pulse (beat_times,ref_time,old_beat_times):
     for b_time in beat_times:
         if(abs(ref_time - b_time) > SAMPLE_PERIOD_IN_SEC):
             old_beat_times.append(b_time)
-            #print(len(beat_times))
                 
     for b_time in old_beat_times:
         beat_times.remove(b_time)
-        #print(len(beat_times))
+		
+		
+def test_thread(b, n):
+    return -1
 
 def get_magnitude(x, y, z):
     return sqrt(x**2 + y**2 + z**2)
@@ -133,41 +105,24 @@ def get_magnitude_dict(axes):
 def read_acceleration_to_dict(adxl345):
     return adxl345.getAxes(True)
 
-def send_mag_data(magnitude):
+def send_magnitude(magnitude):
     print "accel"
     print magnitude
-    message['id'] = 'wearable'
-    message['command'] = 'addForceMagData'
-    message['data'] = {'number': magnitude, 'timeStamp': time.time()}
-    sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
     
 def check_magnitude(magnitude):
     return magnitude > MAGNITUDE_THRESHOLD
 
-
-    
+def send_alarm():
+    print "                                 ALARM"
+	
 def acceloremetor_thread():
-    count = 0 
-    start_time = time.time()
+    adxl345 = ADXL345()
     while True:
-	time.sleep(0.1)
-        adxl345 = ADXL345()
-        magnitude = get_magnitude_dict(read_acceleration_to_dict(adxl345))
-        if (time.time() - start_time) < 1:
-            if count is 0:
-                max_mag = magnitude
-                count = 1;
-            else:
-                if magnitude > max_mag :
-                    max_mag = magnitude
-        else:
-            start_time = time.time()
-            if check_magnitude(max_mag):
-                send_alarm()
-                count = 0
-            else:
-                count = 0
-                send_mag_data(max_mag)
+       time.sleep(PERIOD_BETWEEN_SAMPLES)
+       magnitude = get_magnitude_dict(read_acceleration_to_dict(adxl345))
+       send_magnitude(magnitude)
+       if check_magnitude(magnitude):
+           send_alarm()
 			
 def start_threads():
     BPM_reader = threading.Thread(target = BPM_reader_thread, args=(beat_times,))
@@ -183,10 +138,6 @@ def start_threads():
 	
 threads = []
 if __name__ == "__main__": 
-    time.sleep(5)
-    printed = False
-    sendingSock = UDPFunc.createUDPSocket(MY_IP, MY_PORT)
-    message = {'id':'wearable'}
     beat_times = []
     start_threads()
 	

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.nfc.Tag;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.os.Bundle;
@@ -14,7 +15,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -24,15 +24,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.jjoe64.graphview.series.DataPoint;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.Iterator;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     public static final String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
     public static final String REGISTRATION_COMPLETE = "registrationComplete";
@@ -41,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     public int notificationId;
 
     private LifeBandModel lifeBandModel;
+
+    private BroadcastReceiver mRegistrationBroadcastReceiver;
 
     private ViewPager viewPager;
     private TabLayout tabLayout;
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        lifeBandModel = new LifeBandModel();
+        lifeBandModel = new LifeBandModel(this);
 
         toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -67,40 +67,25 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
 
-        Button button = (Button) findViewById(R.id.notification_button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainActivity.this)
-                        .setSmallIcon(R.drawable.notification_template_icon_bg)
-                        .setContentTitle("Abnormalities Detected in Pulse")
-                        .setContentText("Click to View");
-
-                Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                TaskStackBuilder stackBuilder = TaskStackBuilder.create(MainActivity.this);
-                stackBuilder.addParentStack(MainActivity.class);
-                stackBuilder.addNextIntent(intent);
-                PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-                mBuilder.setContentIntent(pendingIntent);
-                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.notify(notificationId, mBuilder.build());
-            }
-        });
-
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        /*mBroadcastReceiver = new BroadcastReceiver() {
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+
                 boolean sentToken = sharedPreferences.getBoolean(SENT_TOKEN_TO_SERVER, false);
                 if(sentToken)
-                    displayToast("message sent", Toast.LENGTH_SHORT);
-                else
-                    displayToast("failed message sent", Toast.LENGTH_SHORT);
+                    Log.d(TAG, "gcm sent message SUCCESSFULLY");
+                else {
+                    Log.d(TAG, "gcm FAILED message send");
+                    displayToast("Failed GCM Registration", Toast.LENGTH_SHORT);
+                }
             }
         };
-        Intent intent = new Intent(this, RegistrationIntentService.class);
-        startService(intent);*/
+        if (checkPlayServices()) {
+            Intent intent = new Intent(this, RegistrationIntentService.class);
+            startService(intent);
+        }
     }
 
     @Override
@@ -126,12 +111,36 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /*The method calls a series of function which request new data, receive the data, check the
-    * data, and if it is ok, then the new data is displayed in the ui thread. The method catches
-    * errors that were not screened by checkJSONData() and displays a DATA_INVALID message.*/
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter(REGISTRATION_COMPLETE));
+    }
 
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        super.onPause();
+    }
 
-    public void displayToast(final String text, final int duration){
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if(apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode,
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Log.i(TAG, "This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public void displayToast(final String text, final int duration) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
