@@ -132,7 +132,7 @@ def send_mag_data(magnitude):
     print magnitude
     message['id'] = 'wearable'
     message['command'] = 'addSensorData'
-    message['data'] = {'forceMag': magnitude, 'time': time()}
+    message['data'] = {'forceMag': magnitude, 'time': time.time()}
     sendingSock.sendto(json.dumps(message), (SERVER_IP, SERVER_PORT))
     
 def check_magnitude(magnitude):
