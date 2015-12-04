@@ -93,10 +93,11 @@ def BPM_reader_thread(beat_times):
                         if alarm_flag is 0 :
                             send_alarm ()
                             alarm_flag = 1
-                except:
-                    pass
-            except KeyboardInterrupt:
-                sys.exit(0)
+                except KeyboardInterrupt:
+                    sys.exit(0)
+            except:
+                pass
+                
                # print "index is zero so not today come back later"
                 
 def thread_sync (thread1,thread2):
