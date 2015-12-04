@@ -23,6 +23,7 @@ public abstract class PageFragment extends Fragment {
         mPage = getArguments().getInt(ARG_PAGE);
 
         mainActivity = (MainActivity) getActivity();
+        lifeBand = mainActivity.getLifeBandModel();
     }
 
 }

@@ -37,7 +37,7 @@
                     android:layout_column="1"
                     android:layout_weight="0.4"
                     android:gravity="start"
-                    android:text="5"
+                    android:text="-"
                     android:textSize="35sp" />
 
             </TableRow>
@@ -64,7 +64,7 @@
                     android:layout_column="1"
                     android:layout_weight="0.4"
                     android:gravity="start"
-                    android:text="5"
+                    android:text="-"
                     android:textSize="35sp" />
             </TableRow>
         </TableLayout>

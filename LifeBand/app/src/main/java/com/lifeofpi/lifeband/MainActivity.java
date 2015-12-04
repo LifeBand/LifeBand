@@ -153,4 +153,11 @@ public class MainActivity extends AppCompatActivity {
         return lifeBandModel;
     }
 
+    public TabLayout getTabLayout() {
+        return tabLayout;
+    }
+
+    public ViewPager getViewPager() {
+        return viewPager;
+    }
 }

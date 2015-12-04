@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.jjoe64.graphview.series.DataPoint;
+
 /**
  * Created by dominikschmidtlein on 11/4/2015.
  */
@@ -62,19 +64,18 @@ public class OverviewPageFragment extends PageFragment implements LifeBandListen
         currentHeartbeatTextView = (TextView) view.findViewById(R.id.currentHeartbeatTextView);
         currentAccelerationTextView = (TextView) view.findViewById(R.id.currentAccelerationTextView);
 
+        update();
+
         return view;
     }
 
     @Override
     public void update() {
-        final double currentHearbeat = lifeBand.getHeartbeats()[lifeBand.getHeartbeats().length - 1].getY();
-        Log.d(MainActivity.TAG, currentHearbeat + "");
-        final double currentAcceleration = lifeBand.getAccelerations()[lifeBand.getAccelerations().length - 1].getY();
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                currentHeartbeatTextView.setText(currentHearbeat + "");
-                currentAccelerationTextView.setText(currentAcceleration + "");
+                currentHeartbeatTextView.setText(lifeBand.getLatestHeartbeat() + "");
+                currentAccelerationTextView.setText(lifeBand.getLatestAcceleration() + "");
             }
         });
     }
