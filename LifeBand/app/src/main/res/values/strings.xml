@@ -1,4 +1,10 @@
 <resources>
+    <!--Server API Key: AIzaSyBsLNoI0qIGImUA31Fbz9YZeAZXMMmHktg-->
+    <!--527909730825-->
+
+    <string name="server_api_key">AIzaSyBsLNoI0qIGImUA31Fbz9YZeAZXMMmHktg</string>
+    <string name="sender_id">527909730825</string>
+
     <string name="app_name">LifeBand</string>
     <string name="gcm_sender_id">527909730825</string>
 

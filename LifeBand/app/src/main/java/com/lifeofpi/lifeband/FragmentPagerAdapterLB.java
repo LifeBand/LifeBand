@@ -10,7 +10,7 @@ import android.support.v4.app.FragmentPagerAdapter;
  * Created by dominikschmidtlein on 11/4/2015.
  */
 public class FragmentPagerAdapterLB extends FragmentPagerAdapter {
-    public static final int PAGE_COUNT = 3;
+    final int PAGE_COUNT = 3;
     private String tabTitles[] = new String[] { OverviewPageFragment.NAME, HeartbeatPageFragment.NAME, AccelerationPageFragment.NAME };
     private Context context;
 
