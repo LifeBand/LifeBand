@@ -321,12 +321,12 @@ class ServerModel():
 			last_check_time = time.time() - DEF_SNAPSHOT_DATA_INTERVAL
 			averages = {}
 			for key in self.sensor_ID_dict:
-				averages[key] = conn.cursor().execute('SELECT AVG(number) FROM '+DEF_TABLE_NAME_SENSOR_DATA+' WHERE timeStamp > '+ str(last_check_time)+' AND senID=\'' + str(self.sensor_ID_dict[key])+'\'')
+				averages[key] = conn.cursor().execute('SELECT AVG(number) FROM '+DEF_TABLE_NAME_SENSOR_DATA+' WHERE timeStamp > '+ str(last_check_time)+' AND senID=\'' + str(self.sensor_ID_dict[key])+'\'').fetchone()[0]
 
-			print('Average BPM: '+str(avgBPM)+' Force: '+ str(avgForceMag))
+			print('Average BPM: '+str(averages['bpm'])+' Force: '+ str(averages['forceMag']))
 
-			conn.cursor().execute('INSERT INTO '+ DEF_TABLE_NAME_SNAPSHOT_DATA + ' (timeStamp,bpm, forceMag) Values (?,?,?)',(last_check_time,averages['bpm'],averages['forceMag']))
-				conn.commit()
+			conn.cursor().execute('INSERT INTO '+ DEF_TABLE_NAME_SNAPSHOT_DATA + ' (timeStamp,bpm, forceMag) Values (?,?,?)',(last_check_time,round(averages['bpm'],1),round(averages['forceMag'],2)))
+			conn.commit()
 
 			conn.close()
 			print ('----------------------------------\r\n')
