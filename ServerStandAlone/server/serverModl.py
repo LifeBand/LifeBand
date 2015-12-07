@@ -52,7 +52,7 @@ DEF_TABLE_COLS_SNAPSHOT_DATA= [
 
 DEF_TABLE_COLS_SENSOR_DATA = [
 					['WearableID','INT'] ,
-				#	['senID','TEXT'],
+					['senID','TEXT'],
 					['timeStamp', 'REAL'] ,
 					['number', 'REAL']
 				]
@@ -108,7 +108,7 @@ class ServerModel():
 		dbFunc.create_table(conn,DEF_TABLE_NAME_ALARM, DEF_TABLE_COLS_ALARM )
 		dbFunc.create_table(conn,DEF_TABLE_NAME_SNAPSHOT_DATA, DEF_TABLE_COLS_SNAPSHOT_DATA )
 		dbFunc.create_table(conn,DEF_TABLE_NAME_SENLIST, DEF_TABLE_COLS_SENLIST)
-
+		dbFunc.create_table(conn,DEF_TABLE_NAME_SENSOR_DATA, DEF_TABLE_COLS_SENSOR_DATA )
 
 		conn.close()
 
@@ -125,8 +125,8 @@ class ServerModel():
 		query_data = list()
 		response =  {'id':'server','command':'putLatestData','data':{'bpm':0,'forceMag':0} }
 
-		query_data.append(conn.cursor().execute('SELECT bpm FROM bpmData ORDER BY timeStamp DESC LIMIT 1').fetchone())
-		query_data.append(conn.cursor().execute('SELECT forceMag FROM forceMagData ORDER BY timeStamp DESC LIMIT 1').fetchone())
+		query_data.append(conn.cursor().execute('SELECT number FROM '+DEF_TABLE_NAME_SENSOR_DATA+' WHERE senID = \''+str(self.sensor_ID_dict['bpm'])+'\' ORDER BY timeStamp DESC LIMIT 1').fetchone())
+		query_data.append(conn.cursor().execute('SELECT number FROM '+DEF_TABLE_NAME_SENSOR_DATA+' WHERE senID = \''+str(self.sensor_ID_dict['forceMag'])+'\' ORDER BY timeStamp DESC LIMIT 1').fetchone())
 
 		#query_data =conn.cursor().execute('SELECT max(id) bpm, forceMag FROM bpmData INNER JOIN forceMagData on bpmData.timeStamp = forceMagData.timeStamp').fetchone()
 
@@ -210,16 +210,14 @@ class ServerModel():
 		self.sensor_ID_dict[str(sensor_name)] = str(uuid.uuid1())
 
 		conn.cursor().execute('INSERT INTO '+DEF_TABLE_NAME_SENLIST+'(WearableID,senID, senName, sampFreq) VALUES (?,?,?,?)',(DEF_WEARABLE_ID,self.sensor_ID_dict[str(sensor_name)],sensor_name,str(samp_freq)))
-		if(sensor_name=='bpm'):
-			dbFunc.create_table(conn,sensor_name+'Data', DEF_TABLE_COLS_BPM_DATA)
-		elif(sensor_name=='forceMag'):
-			dbFunc.create_table(conn,sensor_name+'Data', DEF_TABLE_COLS_FORCEMAG_DATA)
+
 		conn.commit()
 
 
 	def remove_device_from_db(conn,sensor_name):
 
 		conn.cursor().execute('DELETE FROM '+DEF_TABLE_NAME_SENLIST+' WHERE WearableID = '+str(DEF_WEARABLE_ID)+' AND senID = \'' + str(self.sensor_ID_dict[str(sensor_name)])+'\'')
+		conn.cursor().execute('DELETE FROM '+DEF_TABLE_NAME_SENSOR_DATA+' WHERE WearableID = '+str(DEF_WEARABLE_ID)+' AND senID = \'' + str(self.sensor_ID_dict[str(sensor_name)])+'\'')
 		conn.commit()
 
 
@@ -235,13 +233,13 @@ class ServerModel():
 
 
 			if(sensor_name=='bpm'):
-				conn.cursor().execute('INSERT INTO '+str(sensor_name)+'Data(WearableID,senID,timeStamp,bpm) VALUES (?,?,?,?)',
+				conn.cursor().execute('INSERT INTO '+str(DEF_TABLE_NAME_SENSOR_DATA)+'(WearableID,senID,timeStamp,number) VALUES (?,?,?,?)',
 							(DEF_WEARABLE_ID,
 							self.sensor_ID_dict[str(sensor_name)],
 							int(sensor_data['timeStamp']),
 							round(sensor_data['number'],1)))
 			elif(sensor_name=='forceMag'):
-				conn.cursor().execute('INSERT INTO '+str(sensor_name)+'Data(WearableID,senID,timeStamp,forceMag) VALUES (?,?,?,?)',
+				conn.cursor().execute('INSERT INTO '+str(DEF_TABLE_NAME_SENSOR_DATA)+'(WearableID,senID,timeStamp,number) VALUES (?,?,?,?)',
 							(DEF_WEARABLE_ID,
 							self.sensor_ID_dict[str(sensor_name)],
 							int(sensor_data['timeStamp']),
@@ -301,8 +299,7 @@ class ServerModel():
 		try:
 			print ('----------------------------------\r\n'+str(time.ctime())+"\r\nDeleting data older than 2 days")
 			conn = sqlite3.connect(self.db_path)
-			for key in self.sensor_ID_dict:
-				conn.cursor().execute('DELETE FROM '+key+'Data WHERE timeStamp < '+ str(int(time.time() - DEF_1_DAY_IN_SECONDS*2)) )
+			conn.cursor().execute('DELETE FROM '+DEF_TABLE_NAME_SENSOR_DATA+'Data WHERE timeStamp < '+ str(int(time.time() - DEF_1_DAY_IN_SECONDS*2)) )
 			conn.commit()
 			conn.close()
 			print ('----------------------------------\r\n')
@@ -322,13 +319,10 @@ class ServerModel():
 			avgForceMag = 0
 			conn = sqlite3.connect(self.db_path)
 			last_check_time = time.time() - DEF_SNAPSHOT_DATA_INTERVAL
-			conn.cursor().execute('CREATE TEMP TABLE lastBMP AS SELECT * FROM bpmData WHERE timeStamp > '+ str(last_check_time))
-			conn.cursor().execute('CREATE TEMP TABLE lastForceMag AS SELECT * FROM forceMagData WHERE timeStamp > '+ str(last_check_time))
+			conn.cursor().execute('CREATE TEMP TABLE tempBPM  AS SELECT * FROM '+DEF_TABLE_NAME_SENSOR_DATA+' WHERE timeStamp > '+ str(last_check_time)+' AND senID=\'' + str(self.sensor_ID_dict['bpm'])+'\'')
+			conn.cursor().execute('CREATE TEMP TABLE tempForceMag  AS SELECT * FROM '+DEF_TABLE_NAME_SENSOR_DATA+'  WHERE timeStamp > '+ str(last_check_time)+' AND senID=\'' + str(self.sensor_ID_dict['forceMag'])+'\'')
 
-			conn.cursor().execute('SELECT bpm, forceMag FROM lastBMP INNER JOIN lastForceMag ON lastBMP.timeStamp = lastForceMag.timeStamp').fetchall()
-		
-
-			query_data_joined =conn.cursor().execute('SELECT bpm, forceMag FROM bpmData INNER JOIN forceMagData on bpmData.timeStamp = forceMagData.timeStamp').fetchall()
+			query_data_joined = conn.cursor().execute('SELECT tempBPM.number, tempForceMag.number FROM tempBPM INNER JOIN tempForceMag ON tempBPM.timeStamp = tempForceMag.timeStamp').fetchall()
 
 			conn.cursor().execute('DROP TABLE IF EXISTS lastBMP')
 			conn.cursor().execute('DROP TABLE IF EXISTS lastForceMag')
