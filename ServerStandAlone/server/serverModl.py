@@ -319,23 +319,13 @@ class ServerModel():
 			avgForceMag = 0
 			conn = sqlite3.connect(self.db_path)
 			last_check_time = time.time() - DEF_SNAPSHOT_DATA_INTERVAL
-			conn.cursor().execute('CREATE TEMP TABLE tempBPM  AS SELECT * FROM '+DEF_TABLE_NAME_SENSOR_DATA+' WHERE timeStamp > '+ str(last_check_time)+' AND senID=\'' + str(self.sensor_ID_dict['bpm'])+'\'')
-			conn.cursor().execute('CREATE TEMP TABLE tempForceMag  AS SELECT * FROM '+DEF_TABLE_NAME_SENSOR_DATA+'  WHERE timeStamp > '+ str(last_check_time)+' AND senID=\'' + str(self.sensor_ID_dict['forceMag'])+'\'')
+			averages = {}
+			for key in self.sensor_ID_dict:
+				averages[key] = conn.cursor().execute('SELECT AVG(number) FROM '+DEF_TABLE_NAME_SENSOR_DATA+' WHERE timeStamp > '+ str(last_check_time)+' AND senID=\'' + str(self.sensor_ID_dict[key])+'\'')
 
-			query_data_joined = conn.cursor().execute('SELECT tempBPM.number, tempForceMag.number FROM tempBPM INNER JOIN tempForceMag ON tempBPM.timeStamp = tempForceMag.timeStamp').fetchall()
+			print('Average BPM: '+str(avgBPM)+' Force: '+ str(avgForceMag))
 
-			conn.cursor().execute('DROP TABLE IF EXISTS lastBMP')
-			conn.cursor().execute('DROP TABLE IF EXISTS lastForceMag')
-			if query_data_joined is not None:
-				query_bpm = [row[0] for row in query_data_joined]
-				query_force_mag = [row[1] for row in query_data_joined]
-
-				avgBPM =  round(reduce(lambda x, y: x + y, query_bpm) / len(query_bpm),1)
-				avgForceMag = round( reduce(lambda x, y: x + y, query_force_mag) / len(query_force_mag),2)
-
-				print('Average BPM: '+str(avgBPM)+' Force: '+ str(avgForceMag))
-
-				conn.cursor().execute('INSERT INTO '+ DEF_TABLE_NAME_SNAPSHOT_DATA + ' (timeStamp,bpm, forceMag) Values (?,?,?)',(last_check_time,avgBPM,avgForceMag))
+			conn.cursor().execute('INSERT INTO '+ DEF_TABLE_NAME_SNAPSHOT_DATA + ' (timeStamp,bpm, forceMag) Values (?,?,?)',(last_check_time,averages['bpm'],averages['forceMag']))
 				conn.commit()
 
 			conn.close()
