@@ -1,0 +1,4 @@
+the first draft of the porject was gym buddy which counts the number of curls in the gym and tell you if you are doing it 
+wrong or right.
+the proposal for that project was denied.
+the new project was decided to be the home health monitor systems which was accepted.

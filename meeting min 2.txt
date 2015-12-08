@@ -1,0 +1,12 @@
+Group Decisions:
+	We will send messages with udp, encoding and decoding with Json
+	They will be a dictionary
+	We will all work on the code together, spending more time as a team each week to work
+	Two days will be designated each week totalling approximately 10 hours for both
+
+Preparing for the next meeting:
+	Get familiar with Json
+		Encoding
+		Decoding
+	Understand python dictionaries and java hashmaps
+	start writing test code so we have a place to get started from

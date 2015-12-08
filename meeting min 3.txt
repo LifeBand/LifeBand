@@ -1,0 +1,6 @@
+- button stand alone code was implemented 
+- introducing android application for lifeband
+- the light stand alone code was implemented
+- json communication was started succefully between pis
+- google voice code was added
+- github was rearranged to start the new project

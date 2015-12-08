@@ -1,0 +1,7 @@
+- started working on the other sensor accelerometer
+- pull down to refresh was add to the application
+- error handling was added to the server
+- the communication between the stub and the server was succesfully done
+- google cloud was implemented for the phone
+- the stubs (testing method for the server) was added
+- excel cheet was made recording the pulse

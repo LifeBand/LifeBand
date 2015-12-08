@@ -1,0 +1,6 @@
+- the connection between the server and phone ready.
+- all the sensors was combined and working together in one code.
+- the connection between the wearable pi and the server was ready.
+- the project was tested many times and the behaviour was noticed.
+- the server was fully functional 
+- sending functions for the wearable was ready

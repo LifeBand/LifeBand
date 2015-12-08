@@ -1,0 +1,7 @@
+- unit tests were added to the server side
+- fixed application code was added to github
+- the pulse code was changed to a better algorithm
+- sq light was added to the database
+- old pulse code was updated
+- alarm generator was added to github
+- MC server to master

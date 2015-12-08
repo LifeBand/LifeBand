@@ -1,0 +1,7 @@
+- had a meeting with professor James Green asking for more information 
+on the health as it was found out to be one of his researches 
+- the graphs for the application was devoloped 
+- testing of the pulse sensor was done using graphs
+- sending to email from server in case of emergency was made
+- adding Device ID for emergency contact to the server
+- sensors was combined in one file to work togethers

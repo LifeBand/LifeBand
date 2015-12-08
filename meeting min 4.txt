@@ -1,0 +1,8 @@
+- MVC design was added
+- first draft of the pull down ot refresh the application was implemmented 
+- first draft of the pulse associated with analog to digital converter
+- first draft of phone sending to server 
+- first draft of email support 
+- first draft of server send email
+- protocol was set
+- first draft of the analog to digital converter
