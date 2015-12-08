@@ -10,20 +10,20 @@ The Wearable RPi contains:
 	An IMU: https://www.sparkfun.com/products/10121
 	
 To run the Server:
-	Clone this repository
-	Go into FinalModules/ServerStandAlone/
-	run command: python runServer.py
+..*Clone this repository
+..*Go into FinalModules/ServerStandAlone/
+..*run command: python runServer.py
 
 To run the Phone:
-	Clone this repository
-	Go into FinalModules/LifeBand/
-	Open this directory using Android Studio
-	Run the project
+..*Clone this repository
+..*Go into FinalModules/LifeBand/
+..*Open this directory using Android Studio
+..*Run the project
 
 To run the Wearable:
-	Clone this repository
-	Go into FinalModules/wearable_pi
-	run command: python wearable_pi.py
+..*Clone this repository
+..*Go into FinalModules/wearable_pi
+..*run command: python wearable_pi.py
 	
 
 
